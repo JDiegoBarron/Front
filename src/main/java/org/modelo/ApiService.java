@@ -7,7 +7,7 @@ import org.json.JSONObject; // necesitas la librería org.json
 
 public class ApiService {
 
-    private static final String BASE_URL = "https://tu-api.com"; // cambia esto
+    private static final String BASE_URL = "https://tu-api.com"; // cambia estojejeje
 
     public UsuarioModel login(String username, String password) throws Exception {
         URL url = new URL(BASE_URL + "/auth/login");
