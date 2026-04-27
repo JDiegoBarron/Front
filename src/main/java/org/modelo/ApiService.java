@@ -10,7 +10,6 @@ public class ApiService {
 
     private static final String BASE_URL = "http://localhost:3000/api";
 
-    // ─── Metodo para peticiones ───────────────────────────────────
 
     private JSONObject request(String metodo, String ruta, JSONObject body) throws Exception {
         URL url = new URL(BASE_URL + ruta);

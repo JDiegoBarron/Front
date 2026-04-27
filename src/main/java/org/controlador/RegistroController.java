@@ -45,6 +45,7 @@ public class RegistroController {
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     vista.setMensaje(ex.getMessage());
                     vista.setBloqueado(false);
+                    vista.setMensajeError("Error creando registro.");
                 });
             }
         }).start();

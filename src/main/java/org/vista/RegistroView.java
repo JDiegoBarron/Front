@@ -133,8 +133,10 @@ public class RegistroView extends JFrame {
     public JButton getBotonVolver()    { return botonVolver; }
     public void setMensaje(String msg) { etiquetaMensaje.setText(msg); }
     public void setMensajeExito(String msg) {
-        etiquetaMensaje.setForeground(new Color(40, 160, 80));
-        etiquetaMensaje.setText(msg);
+        JOptionPane.showMessageDialog(this, msg);
+    }
+    public void setMensajeError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
     public void setBloqueado(boolean b) { botonRegistrar.setEnabled(!b); }
 }
