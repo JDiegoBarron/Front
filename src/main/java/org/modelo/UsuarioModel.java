@@ -1,17 +1,17 @@
 package org.modelo;
 
 public class UsuarioModel {
+    private int id;
     private String username;
-    private String token;
     private String nombreCompleto;
 
-    public UsuarioModel(String username, String token, String nombreCompleto) {
+    public UsuarioModel(int id, String username, String nombreCompleto) {
+        this.id = id;
         this.username = username;
-        this.token = token;
         this.nombreCompleto = nombreCompleto;
     }
 
+    public int getId()               { return id; }
     public String getUsername()      { return username; }
-    public String getToken()         { return token; }
     public String getNombreCompleto(){ return nombreCompleto; }
 }

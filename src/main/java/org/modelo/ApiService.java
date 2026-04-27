@@ -1,50 +1,130 @@
 package org.modelo;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.json.JSONObject; // necesitas la librería org.json
 
 public class ApiService {
 
-    private static final String BASE_URL = "https://tu-api.com"; // cambia estojejeje
+    private static final String BASE_URL = "http://localhost:3000/api";
 
-    public UsuarioModel login(String username, String password) throws Exception {
-        URL url = new URL(BASE_URL + "/auth/login");
+    // ─── Metodo para peticiones ───────────────────────────────────
+
+    private JSONObject request(String metodo, String ruta, JSONObject body) throws Exception {
+        URL url = new URL(BASE_URL + ruta);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("POST");
+        conn.setRequestMethod(metodo);
         conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        conn.setRequestProperty("Accept", "application/json");
 
-        // Construir cuerpo JSON
-        String body = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
-        try (OutputStream os = conn.getOutputStream()) {
-            os.write(body.getBytes("UTF-8"));
+        if (body != null) {
+            conn.setDoOutput(true);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(body.toString().getBytes("UTF-8"));
+            }
         }
 
         int status = conn.getResponseCode();
-        if (status == 200) {
-            // Leer respuesta
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), "UTF-8")
-            );
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) sb.append(line);
-            br.close();
+        InputStream is = (status >= 200 && status < 300)
+                ? conn.getInputStream()
+                : conn.getErrorStream();
 
-            // Parsear JSON
-            JSONObject json = new JSONObject(sb.toString());
-            return new UsuarioModel(
-                    json.getString("username"),
-                    json.getString("token"),
-                    json.getString("nombreCompleto")
-            );
-        } else if (status == 401) {
-            throw new Exception("Credenciales incorrectas");
-        } else {
-            throw new Exception("Error del servidor: " + status);
-        }
+        BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) sb.append(line);
+        br.close();
+
+        if (status == 401) throw new Exception("Usuario o contraseña incorrectos");
+        if (status == 404) throw new Exception("Recurso no encontrado");
+        if (status >= 400) throw new Exception("Error del servidor: " + status);
+
+        return new JSONObject(sb.toString());
+    }
+
+    private JSONArray requestArray(String ruta) throws Exception {
+        URL url = new URL(BASE_URL + ruta);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Accept", "application/json");
+
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(conn.getInputStream(), "UTF-8")
+        );
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) sb.append(line);
+        br.close();
+
+        return new JSONArray(sb.toString());
+    }
+
+    // ─── AUTH ─────────────────────────────────────────────────────────────────
+
+    public UsuarioModel login(String username, String password) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("username", username);
+        body.put("password", password);
+
+        JSONObject res = request("POST", "/auth/login", body);
+        return new UsuarioModel(
+                res.getInt("id"),
+                res.getString("username"),
+                res.getString("nombre_completo")
+        );
+    }
+
+    public void registrar(String username, String password, String nombreCompleto) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("username", username);
+        body.put("password", password);
+        body.put("nombre_completo", nombreCompleto);
+        request("POST", "/auth/registrar", body);
+    }
+
+    // ─── TAREAS ───────────────────────────────────────────────────────────────
+
+    public JSONArray obtenerTareas(int usuarioId) throws Exception {
+        return requestArray("/tareas/usuario/" + usuarioId);
+    }
+
+    public JSONArray obtenerTareasProximas(int usuarioId) throws Exception {
+        return requestArray("/tareas/proximas/" + usuarioId);
+    }
+
+    public void crearTarea(int usuarioId, String titulo, String descripcion, String fechaLimite) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("usuarioId", usuarioId);
+        body.put("titulo", titulo);
+        body.put("descripcion", descripcion);
+        body.put("fecha_limite", fechaLimite);
+        request("POST", "/tareas", body);
+    }
+
+    public void completarTarea(int tareaId) throws Exception {
+        request("PATCH", "/tareas/" + tareaId + "/completar", null);
+    }
+
+    public void eliminarTarea(int tareaId) throws Exception {
+        URL url = new URL(BASE_URL + "/tareas/" + tareaId);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("DELETE");
+        conn.getResponseCode();
+    }
+
+    // ─── PERFIL ───────────────────────────────────────────────────────────────
+
+    public JSONObject obtenerPerfil(int usuarioId) throws Exception {
+        return request("GET", "/perfil/" + usuarioId, null);
+    }
+
+    public void guardarPerfil(int usuarioId, String correo, String carrera, int semestre) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("correo", correo);
+        body.put("carrera", carrera);
+        body.put("semestre", semestre);
+        request("PUT", "/perfil/" + usuarioId, body);
     }
 }

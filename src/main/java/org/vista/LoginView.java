@@ -9,6 +9,7 @@ public class LoginView extends JFrame {
     private JTextField campoUsuario;
     private JPasswordField campoPassword;
     private JButton botonEntrar;
+    private JButton botonRegistrar;
     private JLabel etiquetaMensaje;
 
     public LoginView() {
@@ -85,6 +86,17 @@ public class LoginView extends JFrame {
         botonEntrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         gbc.gridy = 4; panel.add(botonEntrar, gbc);
 
+        // Botón registrar
+        botonRegistrar = new JButton("¿No tienes cuenta? Registrate");
+        botonRegistrar.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        botonRegistrar.setBackground(new Color(245, 247, 250));
+        botonRegistrar.setForeground(new Color(80, 90, 200));
+        botonRegistrar.setFocusPainted(false);
+        botonRegistrar.setBorderPainted(false);
+        botonRegistrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        gbc.gridy = 5;
+        panel.add(botonRegistrar, gbc);
+
         add(panel);
         setVisible(true);
     }
@@ -104,4 +116,5 @@ public class LoginView extends JFrame {
     public JButton getBotonEntrar() { return botonEntrar; }
     public void setMensaje(String msg) { etiquetaMensaje.setText(msg); }
     public void setBloqueado(boolean b) { botonEntrar.setEnabled(!b); }
+    public JButton getBotonRegistrar() { return botonRegistrar; }
 }

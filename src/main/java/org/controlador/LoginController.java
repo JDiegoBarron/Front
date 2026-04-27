@@ -4,6 +4,7 @@ import org.modelo.ApiService;
 import org.modelo.UsuarioModel;
 import org.vista.LoginView;
 import org.vista.BienvenidaView;
+import org.vista.RegistroView;
 
 public class LoginController {
 
@@ -16,6 +17,10 @@ public class LoginController {
 
         // Conectar botón de la vista con la lógica
         this.vista.getBotonEntrar().addActionListener(e -> manejarLogin());
+        this.vista.getBotonRegistrar().addActionListener(e -> {
+            RegistroView registro = new RegistroView();
+            new RegistroController(registro);
+        });
     }
 
     private void manejarLogin() {
@@ -31,16 +36,14 @@ public class LoginController {
         vista.setBloqueado(true);
         vista.setMensaje("Conectando...");
 
-        // Llamada a la API en hilo separado para no bloquear la UI
         new Thread(() -> {
             try {
-                UsuarioModel usuario_model = apiService.login(usuario, password);
+                UsuarioModel usuarioModel = apiService.login(usuario, password);
 
-                // Volver al hilo de Swing para actualizar la UI
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     vista.dispose();
-                    BienvenidaView bienvenida = new BienvenidaView(usuario_model.getNombreCompleto());
-                    new BienvenidaController(bienvenida, usuario_model);
+                    BienvenidaView bienvenida = new BienvenidaView(usuarioModel.getNombreCompleto());
+                    new BienvenidaController(bienvenida, usuarioModel); // ya lleva el id
                 });
 
             } catch (Exception ex) {
