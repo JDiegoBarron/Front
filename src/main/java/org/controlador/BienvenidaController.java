@@ -23,9 +23,9 @@ public class BienvenidaController {
         vista.getBoton(4).addActionListener(e -> abrirPerfil());
     }
 
-    private void abrirCalendario()    { JOptionPane.showMessageDialog(vista, "Módulo: Calendario");              }
-    private void abrirListaTareas()   { JOptionPane.showMessageDialog(vista, "Módulo: Lista de tareas");         }
-    private void abrirCrearTarea()    { JOptionPane.showMessageDialog(vista, "Módulo: Crear nueva tarea");       }
-    private void abrirCuestionario()  { JOptionPane.showMessageDialog(vista, "Módulo: Cuestionario de bienestar");}
-    private void abrirPerfil()        { JOptionPane.showMessageDialog(vista, "Módulo: Gestión del perfil");      }
+    private void abrirCalendario()    { JOptionPane.showMessageDialog(vista, "Calendario");              }
+    private void abrirListaTareas()   { JOptionPane.showMessageDialog(vista, "Lista de tareas");         }
+    private void abrirCrearTarea()    { JOptionPane.showMessageDialog(vista, "Crear nueva tarea");       }
+    private void abrirCuestionario()  { JOptionPane.showMessageDialog(vista, "Cuestionario de bienestar");}
+    private void abrirPerfil()        { JOptionPane.showMessageDialog(vista, "Gestión del perfil");      }
 }

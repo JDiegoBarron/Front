@@ -20,7 +20,7 @@ public class BienvenidaView extends JFrame {
         JPanel panelSaludo = new JPanel();
         panelSaludo.setBackground(new Color(80, 90, 200));
         panelSaludo.setBorder(BorderFactory.createEmptyBorder(24, 20, 24, 20));
-        JLabel saludo = new JLabel("Hola, " + nombreCompleto + " 👋", SwingConstants.CENTER);
+        JLabel saludo = new JLabel("Hola, " + nombreCompleto, SwingConstants.CENTER);
         saludo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         saludo.setForeground(Color.WHITE);
         panelSaludo.add(saludo);
@@ -30,11 +30,11 @@ public class BienvenidaView extends JFrame {
         panelBotones.setBorder(BorderFactory.createEmptyBorder(28, 40, 28, 40));
 
         String[] etiquetas = {
-                "📅  Calendario",
-                "📋  Lista de tareas próximas",
-                "➕  Crear nueva tarea",
-                "💚  Cuestionario de bienestar",
-                "👤  Gestión del perfil"
+                "Calendario",
+                "Lista de tareas próximas",
+                "Crear nueva tarea",
+                "Cuestionario de bienestar",
+                "Gestión del perfil"
         };
 
         for (int i = 0; i < etiquetas.length; i++) {
