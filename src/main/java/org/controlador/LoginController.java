@@ -20,6 +20,7 @@ public class LoginController {
         this.vista.getBotonRegistrar().addActionListener(e -> {
             RegistroView registro = new RegistroView();
             new RegistroController(registro);
+            vista.dispose();
         });
     }
 

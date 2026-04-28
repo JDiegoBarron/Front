@@ -29,7 +29,7 @@ public class PerfilView extends JFrame {
         gbc.gridx = 0;
 
         // Título
-        JLabel titulo = new JLabel("Hola, " + nombreCompleto + " 👋", SwingConstants.CENTER);
+        JLabel titulo = new JLabel("Hola, " + nombreCompleto, SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titulo.setForeground(new Color(40, 40, 80));
         gbc.gridy = 0; panel.add(titulo, gbc);
