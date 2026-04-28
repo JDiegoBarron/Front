@@ -2,6 +2,8 @@ package org.controlador;
 
 import org.modelo.UsuarioModel;
 import org.vista.BienvenidaView;
+import org.vista.LoginView;
+
 import javax.swing.JOptionPane;
 
 public class BienvenidaController {
@@ -21,6 +23,7 @@ public class BienvenidaController {
         vista.getBoton(2).addActionListener(e -> abrirCrearTarea());
         vista.getBoton(3).addActionListener(e -> abrirCuestionario());
         vista.getBoton(4).addActionListener(e -> abrirPerfil());
+        vista.getBoton(5).addActionListener(e -> iaALogin());
     }
 
     private void abrirCalendario()    { JOptionPane.showMessageDialog(vista, "Calendario");              }
@@ -28,4 +31,10 @@ public class BienvenidaController {
     private void abrirCrearTarea()    { JOptionPane.showMessageDialog(vista, "Crear nueva tarea");       }
     private void abrirCuestionario()  { JOptionPane.showMessageDialog(vista, "Cuestionario de bienestar");}
     private void abrirPerfil()        { JOptionPane.showMessageDialog(vista, "Gestión del perfil");      }
+
+    private void iaALogin() {
+        vista.dispose();
+        LoginView loginView = new LoginView();
+        new LoginController(loginView);
+    }
 }

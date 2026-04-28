@@ -5,11 +5,11 @@ import java.awt.*;
 
 public class BienvenidaView extends JFrame {
 
-    private JButton[] botones = new JButton[5];
+    private JButton[] botones = new JButton[6];
 
     public BienvenidaView(String nombreCompleto) {
         setTitle("Menú Principal");
-        setSize(420, 520);
+        setSize(420, 570);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -25,7 +25,7 @@ public class BienvenidaView extends JFrame {
         saludo.setForeground(Color.WHITE);
         panelSaludo.add(saludo);
 
-        JPanel panelBotones = new JPanel(new GridLayout(5, 1, 0, 12));
+        JPanel panelBotones = new JPanel(new GridLayout(6, 1, 0, 12));
         panelBotones.setBackground(new Color(245, 247, 250));
         panelBotones.setBorder(BorderFactory.createEmptyBorder(28, 40, 28, 40));
 
@@ -41,6 +41,15 @@ public class BienvenidaView extends JFrame {
             botones[i] = crearBoton(etiquetas[i]);
             panelBotones.add(botones[i]);
         }
+
+        botones[5] = new JButton("Cerrar sesion");
+        botones[5].setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        botones[5].setBackground(new Color(245, 247, 250));
+        botones[5].setForeground(new Color(80, 90, 200));
+        botones[5].setFocusPainted(false);
+        botones[5].setBorderPainted(false);
+        botones[5].setCursor(new Cursor(Cursor.HAND_CURSOR));
+        panelBotones.add(botones[5]);
 
         panel.add(panelSaludo, BorderLayout.NORTH);
         panel.add(panelBotones, BorderLayout.CENTER);

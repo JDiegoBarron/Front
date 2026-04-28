@@ -75,12 +75,18 @@ public class ApiService {
         );
     }
 
-    public void registrar(String username, String password, String nombreCompleto) throws Exception {
+    public UsuarioModel registrar(String username, String password, String nombreCompleto) throws Exception {
         JSONObject body = new JSONObject();
         body.put("username", username);
         body.put("password", password);
         body.put("nombre_completo", nombreCompleto);
-        request("POST", "/auth/registrar", body);
+
+        JSONObject res = request("POST", "/auth/registrar", body);
+        return new UsuarioModel(
+                res.getInt("id"),
+                res.getString("username"),
+                res.getString("nombre_completo")
+        );
     }
 
     // ─── TAREAS ───────────────────────────────────────────────────────────────

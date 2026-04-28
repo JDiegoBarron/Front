@@ -1,6 +1,8 @@
 package org.controlador;
 
 import org.modelo.ApiService;
+import org.modelo.UsuarioModel;
+import org.vista.PerfilView;
 import org.vista.RegistroView;
 
 public class RegistroController {
@@ -21,7 +23,6 @@ public class RegistroController {
         String username = vista.getUsername();
         String password = vista.getPassword();
 
-        // Validaciones
         if (nombre.isEmpty() || nombre.equals("Nombre completo") ||
                 username.isEmpty() || username.equals("Usuario") ||
                 password.isEmpty() || password.equals("Contraseña")) {
@@ -34,21 +35,20 @@ public class RegistroController {
 
         new Thread(() -> {
             try {
-                apiService.registrar(username, password, nombre);
+                UsuarioModel nuevoUsuario = apiService.registrar(username, password, nombre);
 
                 javax.swing.SwingUtilities.invokeLater(() -> {
-                    vista.setMensajeExito("Ya puedes iniciar sesión");
-                    vista.setBloqueado(false);
+                    vista.dispose();
+                    PerfilView perfil = new PerfilView(nuevoUsuario.getNombreCompleto());
+                    new PerfilController(perfil, nuevoUsuario);
                 });
 
             } catch (Exception ex) {
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     vista.setMensaje(ex.getMessage());
                     vista.setBloqueado(false);
-                    vista.setMensajeError("Error creando registro.");
                 });
             }
         }).start();
-        vista.dispose();
     }
 }
