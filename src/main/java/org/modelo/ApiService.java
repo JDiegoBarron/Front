@@ -60,7 +60,7 @@ public class ApiService {
         return new JSONArray(sb.toString());
     }
 
-    // ─── AUTH ─────────────────────────────────────────────────────────────────
+    // Auth
 
     public UsuarioModel login(String username, String password) throws Exception {
         JSONObject body = new JSONObject();
@@ -89,7 +89,7 @@ public class ApiService {
         );
     }
 
-    // ─── TAREAS ───────────────────────────────────────────────────────────────
+    // Tareas
 
     public JSONArray obtenerTareas(int usuarioId) throws Exception {
         return requestArray("/tareas/usuario/" + usuarioId);
@@ -119,7 +119,7 @@ public class ApiService {
         conn.getResponseCode();
     }
 
-    // ─── PERFIL ───────────────────────────────────────────────────────────────
+    // Perfil
 
     public JSONObject obtenerPerfil(int usuarioId) throws Exception {
         return request("GET", "/perfil/" + usuarioId, null);
