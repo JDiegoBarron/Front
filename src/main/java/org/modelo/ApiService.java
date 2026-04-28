@@ -8,7 +8,7 @@ import java.net.URL;
 
 public class ApiService {
 
-    private static final String BASE_URL = "http://localhost:3000/api";
+    private static final String BASE_URL = "https://back-k3t4.onrender.com/api";
 
 
     private JSONObject request(String metodo, String ruta, JSONObject body) throws Exception {
