@@ -2,6 +2,7 @@ package org.controlador;
 
 import org.modelo.ApiService;
 import org.modelo.UsuarioModel;
+import org.vista.LoginView;
 import org.vista.PerfilView;
 import org.vista.RegistroView;
 
@@ -15,7 +16,12 @@ public class RegistroController {
         this.apiService = new ApiService();
 
         this.vista.getBotonRegistrar().addActionListener(e -> manejarRegistro());
-        this.vista.getBotonVolver().addActionListener(e -> vista.dispose());
+        this.vista.getBotonVolver().addActionListener(e -> irInicioSesion());
+    }
+
+    private void irInicioSesion() {
+        new LoginController(new LoginView());
+        vista.dispose();
     }
 
     private void manejarRegistro() {

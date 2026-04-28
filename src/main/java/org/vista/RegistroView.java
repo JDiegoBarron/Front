@@ -104,7 +104,7 @@ public class RegistroView extends JFrame {
         botonRegistrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         gbc.gridy = 5; panel.add(botonRegistrar, gbc);
 
-        botonVolver = new JButton("← Volver al inicio de sesión");
+        botonVolver = new JButton("Volver al inicio de sesión");
         botonVolver.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         botonVolver.setBackground(new Color(245, 247, 250));
         botonVolver.setForeground(new Color(80, 90, 200));
