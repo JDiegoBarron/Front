@@ -2,37 +2,57 @@ package org.controlador;
 
 import org.modelo.UsuarioModel;
 import org.vista.BienvenidaView;
+import org.vista.CrearTareaView;
+import org.vista.ListaTareasView;
 import org.vista.LoginView;
-
-import javax.swing.JOptionPane;
 
 public class BienvenidaController {
 
-    private BienvenidaView vista;
-    private UsuarioModel usuario;
+    private final BienvenidaView         vista;
+    private final UsuarioModel           usuario;
+    private       ListaTareasController  listaTareasCtrl;
 
     public BienvenidaController(BienvenidaView vista, UsuarioModel usuario) {
         this.vista   = vista;
         this.usuario = usuario;
-        asignarAcciones();
+
+        inyectarPaneles();
+        conectarNavegacion();
+        vista.switchCard(BienvenidaView.CARD_INICIO);
     }
 
-    private void asignarAcciones() {
-        vista.getBoton(0).addActionListener(e -> abrirCalendario());
-        vista.getBoton(1).addActionListener(e -> abrirListaTareas());
-        vista.getBoton(2).addActionListener(e -> abrirCrearTarea());
-        vista.getBoton(3).addActionListener(e -> abrirCuestionario());
-        vista.getBoton(4).addActionListener(e -> abrirPerfil());
-        vista.getBoton(5).addActionListener(e -> iaALogin());
+    private void inyectarPaneles() {
+        ListaTareasView listaTareasView = new ListaTareasView();
+        listaTareasCtrl = new ListaTareasController(listaTareasView, usuario);
+        vista.addCard(listaTareasView, BienvenidaView.CARD_TAREAS);
+
+        CrearTareaView crearTareaView = new CrearTareaView();
+        new CrearTareaController(crearTareaView, usuario, () -> {
+            listaTareasCtrl.cargarTareas();
+            vista.switchCard(BienvenidaView.CARD_TAREAS);
+        });
+        vista.addCard(crearTareaView, BienvenidaView.CARD_CREAR_TAREA);
     }
 
-    private void abrirCalendario()    { JOptionPane.showMessageDialog(vista, "Calendario");              }
-    private void abrirListaTareas()   { JOptionPane.showMessageDialog(vista, "Lista de tareas");         }
-    private void abrirCrearTarea()    { JOptionPane.showMessageDialog(vista, "Crear nueva tarea");       }
-    private void abrirCuestionario()  { JOptionPane.showMessageDialog(vista, "Cuestionario de bienestar");}
-    private void abrirPerfil()        { JOptionPane.showMessageDialog(vista, "Gestión del perfil");      }
+    private void conectarNavegacion() {
+        conectarNavBtn(BienvenidaView.CARD_INICIO,      () -> { /* sin acción extra */ });
+        conectarNavBtn(BienvenidaView.CARD_CALENDARIO,  () -> { /* pendiente */ });
+        conectarNavBtn(BienvenidaView.CARD_TAREAS,      () -> listaTareasCtrl.cargarTareas());
+        conectarNavBtn(BienvenidaView.CARD_CREAR_TAREA, () -> { /* sin acción extra */ });
+        conectarNavBtn(BienvenidaView.CARD_BIENESTAR,   () -> { /* pendiente */ });
+        conectarNavBtn(BienvenidaView.CARD_PERFIL,      () -> { /* pendiente */ });
 
-    private void iaALogin() {
+        vista.getBotonCerrarSesion().addActionListener(e -> cerrarSesion());
+    }
+
+    private void conectarNavBtn(String cardKey, Runnable hook) {
+        vista.getNavButton(cardKey).addActionListener(e -> {
+            hook.run();
+            vista.switchCard(cardKey);
+        });
+    }
+
+    private void cerrarSesion() {
         vista.dispose();
         LoginView loginView = new LoginView();
         new LoginController(loginView);

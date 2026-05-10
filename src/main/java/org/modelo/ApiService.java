@@ -5,18 +5,19 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApiService {
 
     private static final String BASE_URL = "https://back-k3t4.onrender.com/api";
-
 
     private JSONObject request(String metodo, String ruta, JSONObject body) throws Exception {
         URL url = new URL(BASE_URL + ruta);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod(metodo);
         conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("Accept",       "application/json");
 
         if (body != null) {
             conn.setDoOutput(true);
@@ -38,6 +39,7 @@ public class ApiService {
 
         if (status == 401) throw new Exception("Usuario o contraseña incorrectos");
         if (status == 404) throw new Exception("Recurso no encontrado");
+        if (status == 409) throw new Exception("El usuario ya existe");
         if (status >= 400) throw new Exception("Error del servidor: " + status);
 
         return new JSONObject(sb.toString());
@@ -49,18 +51,39 @@ public class ApiService {
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
 
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), "UTF-8")
-        );
+        int status = conn.getResponseCode();
+        InputStream is = (status >= 200 && status < 300)
+                ? conn.getInputStream()
+                : conn.getErrorStream();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) sb.append(line);
         br.close();
 
+        if (status >= 400) throw new Exception("Error del servidor: " + status);
         return new JSONArray(sb.toString());
     }
 
-    // Auth
+    private void requestVoid(String metodo, String ruta, JSONObject body) throws Exception {
+        URL url = new URL(BASE_URL + ruta);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod(metodo);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept",       "application/json");
+
+        if (body != null) {
+            conn.setDoOutput(true);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(body.toString().getBytes("UTF-8"));
+            }
+        }
+
+        int status = conn.getResponseCode();
+        if (status == 404) throw new Exception("Recurso no encontrado");
+        if (status >= 400) throw new Exception("Error del servidor: " + status);
+    }
 
     public UsuarioModel login(String username, String password) throws Exception {
         JSONObject body = new JSONObject();
@@ -77,8 +100,8 @@ public class ApiService {
 
     public UsuarioModel registrar(String username, String password, String nombreCompleto) throws Exception {
         JSONObject body = new JSONObject();
-        body.put("username", username);
-        body.put("password", password);
+        body.put("username",        username);
+        body.put("password",        password);
         body.put("nombre_completo", nombreCompleto);
 
         JSONObject res = request("POST", "/auth/registrar", body);
@@ -89,37 +112,68 @@ public class ApiService {
         );
     }
 
-    // Tareas
-
-    public JSONArray obtenerTareas(int usuarioId) throws Exception {
-        return requestArray("/tareas/usuario/" + usuarioId);
+    private TareaModel parseTarea(JSONObject obj) {
+        return new TareaModel(
+                obj.getInt("id"),
+                obj.optString("titulo",      ""),
+                obj.optString("descripcion", ""),
+                obj.optString("fecha_limite",""),
+                obj.optString("categoria",   "Curricular"),
+                obj.optString("prioridad",   "Media"),
+                obj.optInt("dificultad",     1),
+                obj.optBoolean("completada", false),
+                obj.optBoolean("vencida",    false)
+        );
     }
 
-    public JSONArray obtenerTareasProximas(int usuarioId) throws Exception {
-        return requestArray("/tareas/proximas/" + usuarioId);
+    public List<TareaModel> obtenerTareas(int usuarioId) throws Exception {
+        JSONArray arr = requestArray("/tareas/usuario/" + usuarioId);
+        List<TareaModel> lista = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) lista.add(parseTarea(arr.getJSONObject(i)));
+        return lista;
     }
 
-    public void crearTarea(int usuarioId, String titulo, String descripcion, String fechaLimite) throws Exception {
+    public List<TareaModel> obtenerTareasProximas(int usuarioId) throws Exception {
+        JSONArray arr = requestArray("/tareas/proximas/" + usuarioId);
+        List<TareaModel> lista = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) lista.add(parseTarea(arr.getJSONObject(i)));
+        return lista;
+    }
+
+    public void crearTarea(int usuarioId, String titulo, String descripcion,
+                           String fechaLimite, String categoria,
+                           String prioridad, int dificultad) throws Exception {
         JSONObject body = new JSONObject();
-        body.put("usuarioId", usuarioId);
-        body.put("titulo", titulo);
-        body.put("descripcion", descripcion);
+        body.put("usuarioId",    usuarioId);
+        body.put("titulo",       titulo);
+        body.put("descripcion",  descripcion);
         body.put("fecha_limite", fechaLimite);
+        body.put("categoria",    categoria);
+        body.put("prioridad",    prioridad);
+        body.put("dificultad",   dificultad);
         request("POST", "/tareas", body);
     }
 
+    public void editarTarea(int tareaId, String titulo, String descripcion,
+                            String fechaLimite, String categoria,
+                            String prioridad, int dificultad) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("titulo",       titulo);
+        body.put("descripcion",  descripcion);
+        body.put("fecha_limite", fechaLimite);
+        body.put("categoria",    categoria);
+        body.put("prioridad",    prioridad);
+        body.put("dificultad",   dificultad);
+        requestVoid("PUT", "/tareas/" + tareaId, body);
+    }
+
     public void completarTarea(int tareaId) throws Exception {
-        request("PATCH", "/tareas/" + tareaId + "/completar", null);
+        requestVoid("PATCH", "/tareas/" + tareaId + "/completar", null);
     }
 
     public void eliminarTarea(int tareaId) throws Exception {
-        URL url = new URL(BASE_URL + "/tareas/" + tareaId);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("DELETE");
-        conn.getResponseCode();
+        requestVoid("DELETE", "/tareas/" + tareaId, null);
     }
-
-    // Perfil
 
     public JSONObject obtenerPerfil(int usuarioId) throws Exception {
         return request("GET", "/perfil/" + usuarioId, null);
@@ -127,9 +181,9 @@ public class ApiService {
 
     public void guardarPerfil(int usuarioId, String correo, String carrera, int semestre) throws Exception {
         JSONObject body = new JSONObject();
-        body.put("correo", correo);
-        body.put("carrera", carrera);
-        body.put("semestre", semestre);
-        request("PUT", "/perfil/" + usuarioId, body);
+        body.put("correo",    correo);
+        body.put("carrera",   carrera);
+        body.put("semestre",  semestre);
+        requestVoid("PUT", "/perfil/" + usuarioId, body);
     }
 }
