@@ -111,9 +111,9 @@ public class InicioView extends JPanel {
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         btnPanel.setBackground(Color.WHITE);
-        btnCuestionario = buildBoton("↻  Nuevo cuestionario", new Color(100, 105, 160));
+        btnCuestionario = buildBoton("Nuevo cuestionario", new Color(100, 105, 160));
         btnCuestionario.addActionListener(e -> { if (onIrCuestionario != null) onIrCuestionario.run(); });
-        btnActualizar = buildBoton("↺  Actualizar datos", BienvenidaView.ACCENT);
+        btnActualizar = buildBoton("Actualizar datos", BienvenidaView.ACCENT);
         btnActualizar.addActionListener(e -> { if (onActualizar != null) onActualizar.run(); });
         btnPanel.add(btnCuestionario);
         btnPanel.add(btnActualizar);
