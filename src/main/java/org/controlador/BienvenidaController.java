@@ -5,9 +5,15 @@ import org.vista.*;
 
 public class BienvenidaController {
 
-    private final BienvenidaView         vista;
-    private final UsuarioModel           usuario;
-    private       ListaTareasController  listaTareasCtrl;
+    private final BienvenidaView        vista;
+    private final UsuarioModel          usuario;
+
+    // Controladores de paneles
+    private ListaTareasController  listaTareasCtrl;
+    private InicioController       inicioCtrl;
+
+    // Respuestas del cuestionario (null = aún no completado)
+    private int[] respuestasCuestionario = null;
 
     public BienvenidaController(BienvenidaView vista, UsuarioModel usuario) {
         this.vista   = vista;
@@ -18,11 +24,26 @@ public class BienvenidaController {
         vista.switchCard(BienvenidaView.CARD_INICIO);
     }
 
+    // ── Inyección de paneles ───────────────────────────────────────────────────
+
     private void inyectarPaneles() {
+
+        // ── Inicio (dashboard de estrés) ─────────────────────────────────────
+        InicioView inicioView = new InicioView();
+        inicioCtrl = new InicioController(
+                inicioView,
+                usuario,
+                () -> respuestasCuestionario,                        // proveedor de respuestas
+                () -> vista.switchCard(BienvenidaView.CARD_BIENESTAR) // botón "Ir al cuestionario"
+        );
+        vista.addCard(inicioView, BienvenidaView.CARD_INICIO);
+
+        // ── Lista de tareas ───────────────────────────────────────────────────
         ListaTareasView listaTareasView = new ListaTareasView();
         listaTareasCtrl = new ListaTareasController(listaTareasView, usuario);
         vista.addCard(listaTareasView, BienvenidaView.CARD_TAREAS);
 
+        // ── Crear tarea → al guardar, va a la lista ───────────────────────────
         CrearTareaView crearTareaView = new CrearTareaView();
         new CrearTareaController(crearTareaView, usuario, () -> {
             listaTareasCtrl.cargarTareas();
@@ -30,16 +51,25 @@ public class BienvenidaController {
         });
         vista.addCard(crearTareaView, BienvenidaView.CARD_CREAR_TAREA);
 
-        // todo: agregar paneles de inicio y cuestionario de bienestar
+        // ── Cuestionario de bienestar ─────────────────────────────────────────
+        CuestionarioView cuestionarioView = new CuestionarioView();
+        new CuestionarioController(cuestionarioView, respuestas -> {
+            respuestasCuestionario = respuestas;  // guardar en el controlador
+            inicioCtrl.cargar();                  // recalcular dashboard
+            vista.switchCard(BienvenidaView.CARD_INICIO);
+        });
+        vista.addCard(cuestionarioView, BienvenidaView.CARD_BIENESTAR);
     }
 
+    // ── Navegación del sidebar ────────────────────────────────────────────────
+
     private void conectarNavegacion() {
-        conectarNavBtn(BienvenidaView.CARD_INICIO,      () -> { /* sin acción extra */ });
-        conectarNavBtn(BienvenidaView.CARD_CALENDARIO,  () -> { /* pendiente */ });
+        conectarNavBtn(BienvenidaView.CARD_INICIO,      () -> inicioCtrl.cargar());
+        conectarNavBtn(BienvenidaView.CARD_CALENDARIO,  () -> {});
         conectarNavBtn(BienvenidaView.CARD_TAREAS,      () -> listaTareasCtrl.cargarTareas());
-        conectarNavBtn(BienvenidaView.CARD_CREAR_TAREA, () -> { /* sin acción extra */ });
-        conectarNavBtn(BienvenidaView.CARD_BIENESTAR,   () -> { /* pendiente */ });
-        conectarNavBtn(BienvenidaView.CARD_PERFIL,      () -> { /* pendiente */ });
+        conectarNavBtn(BienvenidaView.CARD_CREAR_TAREA, () -> {});
+        conectarNavBtn(BienvenidaView.CARD_BIENESTAR,   () -> {});
+        conectarNavBtn(BienvenidaView.CARD_PERFIL,      () -> {});
 
         vista.getBotonCerrarSesion().addActionListener(e -> cerrarSesion());
     }
@@ -53,7 +83,6 @@ public class BienvenidaController {
 
     private void cerrarSesion() {
         vista.dispose();
-        LoginView loginView = new LoginView();
-        new LoginController(loginView);
+        new LoginController(new LoginView());
     }
 }
