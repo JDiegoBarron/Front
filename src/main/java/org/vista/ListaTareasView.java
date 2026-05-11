@@ -5,7 +5,6 @@ import org.modelo.TareaModel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ListaTareasView extends JPanel {
@@ -152,7 +151,7 @@ public class ListaTareasView extends JPanel {
         fila2.setBackground(card.getBackground());
         fila2.setAlignmentX(LEFT_ALIGNMENT);
 
-        JLabel lblFecha = new JLabel("\uD83D\uDCC5  " + tarea.getFechaLimite());
+        JLabel lblFecha = new JLabel(tarea.getFechaLimite());
         lblFecha.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblFecha.setForeground(esVencida ? new Color(183, 28, 28) : Color.GRAY);
         fila2.add(lblFecha);
@@ -196,7 +195,7 @@ public class ListaTareasView extends JPanel {
         gbc.gridx = 0;
 
         gbc.gridy = 0;
-        JLabel ic = new JLabel("\u2705", SwingConstants.CENTER);
+        JLabel ic = new JLabel("", SwingConstants.CENTER); // todo
         ic.setFont(new Font("Segoe UI", Font.PLAIN, 40));
         ic.setForeground(new Color(200, 210, 200));
         p.add(ic, gbc);
@@ -254,8 +253,9 @@ public class ListaTareasView extends JPanel {
     private String buildDots(int dificultad) {
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= 5; i++)
-            sb.append(i <= dificultad ? "\u25CF" : "\u25CB");
+            sb.append(i <= dificultad ? "\u25A0" : "\u25A1");
         return sb.toString();
+
     }
 
     private Color colorCategoria(String categoria) {
