@@ -178,7 +178,7 @@ public class ApiService {
     }
 
     public void completarTarea(int tareaId) throws Exception {
-        requestVoid("PATCH", "/tareas/" + tareaId + "/completar", null);
+        requestVoid("PUT", "/tareas/" + tareaId + "/completar", null);
     }
 
     private void setMethod(HttpURLConnection conn, String metodo) throws Exception {
