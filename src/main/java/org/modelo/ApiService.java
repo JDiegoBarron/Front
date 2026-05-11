@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 
 public class ApiService {
 
@@ -131,5 +132,21 @@ public class ApiService {
         body.put("carrera", carrera);
         body.put("semestre", semestre);
         request("PUT", "/perfil/" + usuarioId, body);
+    }
+
+    public void enviarCuestionario(int usuarioId, Map<Integer, Integer> respuestas) throws Exception {
+        org.json.JSONArray jsonRespuestas = new org.json.JSONArray();
+        for (Map.Entry<Integer, Integer> entry : respuestas.entrySet()) {
+            org.json.JSONObject r = new org.json.JSONObject();
+            r.put("pregunta", entry.getKey());
+            r.put("valor", entry.getValue());
+            jsonRespuestas.put(r);
+        }
+
+        JSONObject body = new JSONObject();
+        body.put("usuarioId", usuarioId);
+        body.put("respuestas", jsonRespuestas);
+
+        request("POST", "/cuestionario", body);
     }
 }
