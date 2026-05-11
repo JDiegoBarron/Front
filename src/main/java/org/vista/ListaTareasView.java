@@ -168,10 +168,10 @@ public class ListaTareasView extends JPanel {
             JPanel acciones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
             acciones.setBackground(card.getBackground());
 
-            JButton btnCompletar = buildAccionBtn(null, new Color(56, 142, 60), "Marcar como completada");
+            JButton btnCompletar = buildAccionBtn("Completar", new Color(56, 142, 60), "Marcar como completada");
             btnCompletar.addActionListener(e -> { if (onCompletar != null) onCompletar.accept(tarea.getId()); });
 
-            JButton btnEliminar = buildAccionBtn(null, new Color(183, 28, 28), "Eliminar tarea");
+            JButton btnEliminar = buildAccionBtn("Borrar", new Color(183, 28, 28), "Eliminar tarea");
             btnEliminar.addActionListener(e -> {
                 int confirm = JOptionPane.showConfirmDialog(
                         this, "¿Eliminar \"" + tarea.getTitulo() + "\"?",
@@ -195,7 +195,7 @@ public class ListaTareasView extends JPanel {
         gbc.gridx = 0;
 
         gbc.gridy = 0;
-        JLabel ic = new JLabel("", SwingConstants.CENTER); // todo
+        JLabel ic = new JLabel("", SwingConstants.CENTER);
         ic.setFont(new Font("Segoe UI", Font.PLAIN, 40));
         ic.setForeground(new Color(200, 210, 200));
         p.add(ic, gbc);

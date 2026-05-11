@@ -1,10 +1,7 @@
 package org.controlador;
 
 import org.modelo.UsuarioModel;
-import org.vista.BienvenidaView;
-import org.vista.CrearTareaView;
-import org.vista.ListaTareasView;
-import org.vista.LoginView;
+import org.vista.*;
 
 public class BienvenidaController {
 
@@ -32,6 +29,8 @@ public class BienvenidaController {
             vista.switchCard(BienvenidaView.CARD_TAREAS);
         });
         vista.addCard(crearTareaView, BienvenidaView.CARD_CREAR_TAREA);
+
+        // todo: agregar paneles de inicio y cuestionario de bienestar
     }
 
     private void conectarNavegacion() {

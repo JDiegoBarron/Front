@@ -47,7 +47,7 @@ public class ListaTareasController {
         }).start();
     }
 
-    private void completarTarea(int tareaId) {
+    private void completarTarea(int tareaId) { // todo: revisar porque endpoint no funciona en Front (hice prueba con Postman y funciona bien)
         vista.setBloqueado(true);
 
         new Thread(() -> {

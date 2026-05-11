@@ -117,14 +117,14 @@ public class CrearTareaView extends JPanel {
         sliderDificultad.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         sliderDificultad.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        lblDificultadValor = new JLabel("●○○○○");
+        lblDificultadValor = new JLabel("■□□□□");
         lblDificultadValor.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblDificultadValor.setForeground(BienvenidaView.ACCENT);
 
         sliderDificultad.addChangeListener(e -> {
             int v = sliderDificultad.getValue();
             StringBuilder dots = new StringBuilder();
-            for (int i = 1; i <= 5; i++) dots.append(i <= v ? "●" : "○");
+            for (int i = 1; i <= 5; i++) dots.append(i <= v ? "■" : "□");
             lblDificultadValor.setText(dots.toString());
         });
 

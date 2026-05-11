@@ -3,6 +3,7 @@ package org.modelo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -83,6 +84,15 @@ public class ApiService {
         int status = conn.getResponseCode();
         if (status == 404) throw new Exception("Recurso no encontrado");
         if (status >= 400) throw new Exception("Error del servidor: " + status);
+    }
+
+    private String leerStream(InputStream is) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) sb.append(line);
+        br.close();
+        return sb.toString();
     }
 
     public UsuarioModel login(String username, String password) throws Exception {
@@ -170,6 +180,22 @@ public class ApiService {
     public void completarTarea(int tareaId) throws Exception {
         requestVoid("PATCH", "/tareas/" + tareaId + "/completar", null);
     }
+
+    private void setMethod(HttpURLConnection conn, String metodo) throws Exception {
+        if (!metodo.equalsIgnoreCase("PATCH")) {
+            conn.setRequestMethod(metodo);
+            return;
+        }
+        try {
+            Field field = HttpURLConnection.class.getDeclaredField("method");
+            field.setAccessible(true);
+            field.set(conn, "PATCH");
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+        }
+    }
+
 
     public void eliminarTarea(int tareaId) throws Exception {
         requestVoid("DELETE", "/tareas/" + tareaId, null);
