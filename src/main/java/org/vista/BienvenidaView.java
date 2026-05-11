@@ -61,12 +61,12 @@ public class BienvenidaView extends JFrame {
         sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
 
         String[][] items = {
-                { CARD_INICIO,      "\u2302", "Inicio"          },
-                { CARD_CALENDARIO,  "\u25A1", "Calendario"       },
-                { CARD_TAREAS,      "\u2611", "Lista de tareas"  },
-                { CARD_CREAR_TAREA, "+",      "Crear tarea"      },
-                { CARD_BIENESTAR,   "\u2665", "Bienestar"        },
-                { CARD_PERFIL,      "\u25CE", "Mi perfil"        },
+                { CARD_INICIO,      "Inicio"          },
+                { CARD_CALENDARIO,  "Calendario"       },
+                { CARD_TAREAS,      "Lista de tareas"  },
+                { CARD_CREAR_TAREA, "Crear tarea"      },
+                { CARD_BIENESTAR,   "Bienestar"        },
+                { CARD_PERFIL,      "Mi perfil"        },
         };
         for (String[] item : items) {
             JButton btn = buildNavBtn(item[1] + "  " + item[2], item[0]);
