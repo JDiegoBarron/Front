@@ -69,7 +69,7 @@ public class BienvenidaView extends JFrame {
                 { CARD_PERFIL,      "Mi perfil"        },
         };
         for (String[] item : items) {
-            JButton btn = buildNavBtn(item[1] + "  " + item[2], item[0]);
+            JButton btn = buildNavBtn(item[1] + "  ", item[0]);
             navButtons.put(item[0], btn);
             sidebar.add(btn);
         }
