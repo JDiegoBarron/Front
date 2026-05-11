@@ -70,7 +70,7 @@ public class InicioView extends JPanel {
         gbc.gridx = 0; gbc.insets = new Insets(8, 0, 8, 0);
 
         gbc.gridy = 0;
-        JLabel ic = new JLabel("📋", SwingConstants.CENTER);
+        JLabel ic = new JLabel("", SwingConstants.CENTER);
         ic.setFont(new Font("Segoe UI", Font.PLAIN, 52));
         p.add(ic, gbc);
 
