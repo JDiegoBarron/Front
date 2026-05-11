@@ -44,9 +44,9 @@ public class BienvenidaView extends JFrame {
         contentArea.setBackground(CONTENT_BG);
         add(contentArea, BorderLayout.CENTER);
 
-        addCard(buildPlaceholder("📅", "Calendario", "Próximamente"), CARD_CALENDARIO);
-        addCard(buildPlaceholder("❤", "Bienestar", "Cuestionario de bienestar próximamente"), CARD_BIENESTAR);
-        addCard(buildPlaceholder("◉", "Mi Perfil", "Gestión del perfil próximamente"), CARD_PERFIL);
+        addCard(buildPlaceholder("", "Calendario", "Próximamente"), CARD_CALENDARIO);
+        addCard(buildPlaceholder("", "Bienestar", "Cuestionario de bienestar próximamente"), CARD_BIENESTAR);
+        addCard(buildPlaceholder("", "Mi Perfil", "Gestión del perfil próximamente"), CARD_PERFIL);
 
         setVisible(true);
     }
