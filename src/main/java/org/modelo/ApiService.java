@@ -11,14 +11,14 @@ import java.util.List;
 
 public class ApiService {
 
-    private static final String BASE_URL = "https://back-k3t4.onrender.com/api";
+    private static final String BASE_URL = "";
 
     private JSONObject request(String metodo, String ruta, JSONObject body) throws Exception {
         URL url = new URL(BASE_URL + ruta);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod(metodo);
         conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Accept",       "application/json");
+        conn.setRequestProperty("Accept", "application/json");
 
         if (body != null) {
             conn.setDoOutput(true);
@@ -72,7 +72,7 @@ public class ApiService {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod(metodo);
         conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Accept",       "application/json");
+        conn.setRequestProperty("Accept", "application/json");
 
         if (body != null) {
             conn.setDoOutput(true);
@@ -110,8 +110,8 @@ public class ApiService {
 
     public UsuarioModel registrar(String username, String password, String nombreCompleto) throws Exception {
         JSONObject body = new JSONObject();
-        body.put("username",        username);
-        body.put("password",        password);
+        body.put("username", username);
+        body.put("password", password);
         body.put("nombre_completo", nombreCompleto);
 
         JSONObject res = request("POST", "/auth/registrar", body);
@@ -125,14 +125,14 @@ public class ApiService {
     private TareaModel parseTarea(JSONObject obj) {
         return new TareaModel(
                 obj.getInt("id"),
-                obj.optString("titulo",      ""),
+                obj.optString("titulo", ""),
                 obj.optString("descripcion", ""),
-                obj.optString("fecha_limite",""),
-                obj.optString("categoria",   "Curricular"),
-                obj.optString("prioridad",   "Media"),
-                obj.optInt("dificultad",     1),
+                obj.optString("fecha_limite", ""),
+                obj.optString("categoria", "Curricular"),
+                obj.optString("prioridad", "Media"),
+                obj.optInt("dificultad", 1),
                 obj.optBoolean("completada", false),
-                obj.optBoolean("vencida",    false)
+                obj.optBoolean("vencida", false)
         );
     }
 
@@ -150,17 +150,25 @@ public class ApiService {
         return lista;
     }
 
+    public List<TareaModel> obtenerTareasMes(int usuarioId, java.time.YearMonth mes) throws Exception {
+        String mesStr = mes.getYear() + "-" + String.format("%02d", mes.getMonthValue());
+        JSONArray arr = requestArray("/tareas/calendario/" + usuarioId + "?mes=" + mesStr);
+        List<TareaModel> lista = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) lista.add(parseTarea(arr.getJSONObject(i)));
+        return lista;
+    }
+
     public void crearTarea(int usuarioId, String titulo, String descripcion,
                            String fechaLimite, String categoria,
                            String prioridad, int dificultad) throws Exception {
         JSONObject body = new JSONObject();
-        body.put("usuarioId",    usuarioId);
-        body.put("titulo",       titulo);
-        body.put("descripcion",  descripcion);
+        body.put("usuarioId", usuarioId);
+        body.put("titulo", titulo);
+        body.put("descripcion", descripcion);
         body.put("fecha_limite", fechaLimite);
-        body.put("categoria",    categoria);
-        body.put("prioridad",    prioridad);
-        body.put("dificultad",   dificultad);
+        body.put("categoria", categoria);
+        body.put("prioridad", prioridad);
+        body.put("dificultad", dificultad);
         request("POST", "/tareas", body);
     }
 
@@ -168,12 +176,12 @@ public class ApiService {
                             String fechaLimite, String categoria,
                             String prioridad, int dificultad) throws Exception {
         JSONObject body = new JSONObject();
-        body.put("titulo",       titulo);
-        body.put("descripcion",  descripcion);
+        body.put("titulo", titulo);
+        body.put("descripcion", descripcion);
         body.put("fecha_limite", fechaLimite);
-        body.put("categoria",    categoria);
-        body.put("prioridad",    prioridad);
-        body.put("dificultad",   dificultad);
+        body.put("categoria", categoria);
+        body.put("prioridad", prioridad);
+        body.put("dificultad", dificultad);
         requestVoid("PUT", "/tareas/" + tareaId, body);
     }
 
@@ -196,7 +204,6 @@ public class ApiService {
         }
     }
 
-
     public void eliminarTarea(int tareaId) throws Exception {
         requestVoid("DELETE", "/tareas/" + tareaId, null);
     }
@@ -207,9 +214,50 @@ public class ApiService {
 
     public void guardarPerfil(int usuarioId, String correo, String carrera, int semestre) throws Exception {
         JSONObject body = new JSONObject();
-        body.put("correo",    correo);
-        body.put("carrera",   carrera);
-        body.put("semestre",  semestre);
+        body.put("correo", correo);
+        body.put("carrera", carrera);
+        body.put("semestre", semestre);
         requestVoid("PUT", "/perfil/" + usuarioId, body);
+    }
+
+    public RachaModel registrarLogin(int usuarioId) throws Exception {
+        JSONObject res = request("POST", "/racha/registro/" + usuarioId, null);
+        return parseRacha(res);
+    }
+
+    public RachaModel obtenerRacha(int usuarioId) throws Exception {
+        JSONObject res = request("GET", "/racha/" + usuarioId, null);
+        return parseRacha(res);
+    }
+
+    private RachaModel parseRacha(JSONObject res) {
+        return new RachaModel(
+                res.optInt("rachaActual", 0),
+                res.optInt("mejorRacha", 0),
+                res.optInt("monedasGanadas", 0),
+                res.optInt("monedasTotal", 0),
+                res.optBoolean("loginNuevo", false)
+        );
+    }
+
+    public List<CosmeticoModel> obtenerCosmeticos(int usuarioId) throws Exception {
+        JSONArray arr = requestArray("/cosmeticos/usuario/" + usuarioId);
+        List<CosmeticoModel> lista = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+            lista.add(new CosmeticoModel(
+                    obj.getInt("id"),
+                    obj.optString("nombre", ""),
+                    obj.optString("descripcion", ""),
+                    "MARCO".equals(obj.optString("tipo", "TEMA"))
+                            ? CosmeticoModel.Tipo.MARCO
+                            : CosmeticoModel.Tipo.TEMA,
+                    obj.optInt("precio", 0),
+                    obj.optInt("indiceLocal", 0),
+                    obj.optBoolean("comprado", false),
+                    obj.optBoolean("activo", false)
+            ));
+        }
+        return lista;
     }
 }
