@@ -15,35 +15,24 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
-/**
- * Panel de perfil que vive como una card dentro de BienvenidaView.
- * Contiene tres pestañas:
- *   1. "Mi perfil"      → editar correo, carrera, semestre
- *   2. "Cosmética"      → tienda de temas y marcos de avatar
- *   3. "Estadísticas"   → racha, mejor racha, monedas
- */
 public class PerfilPanelView extends JPanel {
 
-    // ── Pestaña Perfil ────────────────────────────────────────────────────────
     private JTextField  campoCorreo;
     private JTextField  campoCarrera;
     private JSpinner    campoSemestre;
     private JButton     btnGuardarPerfil;
     private JLabel      lblMensajePerfil;
 
-    // ── Pestaña Cosméticos ────────────────────────────────────────────────────
     private JPanel      gridTemas;
     private JPanel      gridMarcos;
     private JLabel      lblMonedas;
 
-    // ── Panel superior (avatar + info) ────────────────────────────────────────
     private AvatarPanel avatarPanel;
     private JLabel      lblNombre;
     private JLabel      lblUsername;
     private JLabel      lblMonedasHeader;
     private JLabel      lblRachaHeader;
 
-    // ── Callbacks ─────────────────────────────────────────────────────────────
     private Runnable               onGuardarPerfil;
     private IntConsumer            onComprarCosmético;   // id del cosmético
     private IntConsumer            onActivarCosmético;   // id del cosmético
@@ -57,8 +46,6 @@ public class PerfilPanelView extends JPanel {
         add(buildTabs(),      BorderLayout.CENTER);
     }
 
-    // ── Header superior ────────────────────────────────────────────────────────
-
     private JPanel buildTopHeader() {
         TemaApp.Tema tema = TemaApp.getTema();
 
@@ -68,11 +55,9 @@ public class PerfilPanelView extends JPanel {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 222, 235)),
                 new EmptyBorder(20, 28, 20, 28)));
 
-        // ── Avatar ────────────────────────────────────────────────────────────
         avatarPanel = new AvatarPanel(52);
         avatarPanel.setPreferredSize(new Dimension(64, 64));
 
-        // ── Info de usuario ───────────────────────────────────────────────────
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(Color.WHITE);
@@ -96,19 +81,17 @@ public class PerfilPanelView extends JPanel {
         izquierdo.add(infoPanel);
         header.add(izquierdo, BorderLayout.WEST);
 
-        // ── Stats: monedas + racha ────────────────────────────────────────────
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
         statsPanel.setBackground(Color.WHITE);
 
-        statsPanel.add(buildStatChip("🪙", "0", "Monedas", e -> lblMonedasHeader = e));
-        statsPanel.add(buildStatChip("🔥", "0", "Racha",   e -> lblRachaHeader   = e));
+        statsPanel.add(buildStatChip("", "0", "Monedas", e -> lblMonedasHeader = e));
+        statsPanel.add(buildStatChip("", "0", "Racha",   e -> lblRachaHeader   = e));
 
         header.add(statsPanel, BorderLayout.EAST);
 
         return header;
     }
 
-    /** Crea un chip de estadística y expone su JLabel de valor. */
     private JPanel buildStatChip(String icono, String valor, String etiqueta,
                                   Consumer<JLabel> exportarLabel) {
         JPanel chip = new JPanel();
@@ -134,8 +117,6 @@ public class PerfilPanelView extends JPanel {
         exportarLabel.accept(iconLbl);
         return chip;
     }
-
-    // ── Sistema de pestañas ────────────────────────────────────────────────────
 
     private JPanel buildTabs() {
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
@@ -212,15 +193,12 @@ public class PerfilPanelView extends JPanel {
         return wrapper;
     }
 
-    // ── Pestaña 2: Cosmética ──────────────────────────────────────────────────
-
     private JPanel buildTabCosmetica() {
         JPanel outer = new JPanel();
         outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
         outer.setBackground(BienvenidaView.CONTENT_BG);
         outer.setBorder(new EmptyBorder(20, 24, 20, 24));
 
-        // Balance de monedas visible aquí también
         JPanel balancePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         balancePanel.setBackground(BienvenidaView.CONTENT_BG);
         balancePanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -234,7 +212,6 @@ public class PerfilPanelView extends JPanel {
         outer.add(balancePanel);
         outer.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Sección Temas
         outer.add(buildSeccionTitulo("Temas de color"));
         outer.add(Box.createRigidArea(new Dimension(0, 12)));
 
@@ -244,7 +221,6 @@ public class PerfilPanelView extends JPanel {
         outer.add(gridTemas);
         outer.add(Box.createRigidArea(new Dimension(0, 24)));
 
-        // Sección Marcos
         outer.add(buildSeccionTitulo("Marcos de avatar"));
         outer.add(Box.createRigidArea(new Dimension(0, 12)));
 
@@ -264,8 +240,6 @@ public class PerfilPanelView extends JPanel {
         return wrapper;
     }
 
-    // ── Pestaña 3: Estadísticas ───────────────────────────────────────────────
-
     private JPanel buildTabEstadisticas() {
         JPanel outer = new JPanel(new GridBagLayout());
         outer.setBackground(BienvenidaView.CONTENT_BG);
@@ -277,13 +251,13 @@ public class PerfilPanelView extends JPanel {
                 BorderFactory.createLineBorder(new Color(215, 218, 235), 1, true),
                 new EmptyBorder(28, 32, 28, 32)));
 
-        content.add(buildStatRow("🔥  Racha actual",     "0 días",  new Color(211, 47, 47)));
+        content.add(buildStatRow("Racha actual",     "0 días",  new Color(211, 47, 47)));
         content.add(Box.createRigidArea(new Dimension(0, 12)));
-        content.add(buildStatRow("🏆  Mejor racha",      "0 días",  new Color(180, 130, 0)));
+        content.add(buildStatRow("Mejor racha",      "0 días",  new Color(180, 130, 0)));
         content.add(Box.createRigidArea(new Dimension(0, 12)));
-        content.add(buildStatRow("🪙  Monedas acumuladas","0",      new Color(120, 80, 0)));
+        content.add(buildStatRow("Monedas acumuladas","0",      new Color(120, 80, 0)));
         content.add(Box.createRigidArea(new Dimension(0, 12)));
-        content.add(buildStatRow("✅  Tareas completadas","0",      new Color(27, 94, 32)));
+        content.add(buildStatRow("Tareas completadas","0",      new Color(27, 94, 32)));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
@@ -320,12 +294,6 @@ public class PerfilPanelView extends JPanel {
         return row;
     }
 
-    // ── Renderizado de cosméticos ──────────────────────────────────────────────
-
-    /**
-     * Llena el grid de temas con tarjetas de cosméticos.
-     * Llamado desde el controlador cuando llegan los datos de la API.
-     */
     public void mostrarCosmeticos(List<CosmeticoModel> cosmeticos) {
         gridTemas.removeAll();
         gridMarcos.removeAll();
@@ -407,10 +375,8 @@ public class PerfilPanelView extends JPanel {
         return card;
     }
 
-    /** Previsualización pequeña del cosmético (muestra colores del tema o el marco). */
     private JPanel buildCosmeticoPreview(CosmeticoModel c) {
         if (c.getTipo() == CosmeticoModel.Tipo.MARCO) {
-            // Círculo con el marco dibujado
             return new JPanel() {
                 { setOpaque(false); setPreferredSize(new Dimension(48, 48)); }
                 @Override
@@ -432,7 +398,6 @@ public class PerfilPanelView extends JPanel {
                 }
             };
         } else {
-            // Rectángulo con los colores del tema
             TemaApp.Tema[] temas = TemaApp.TEMAS;
             int idx = c.getIndiceLocal();
             if (idx < 0 || idx >= temas.length) idx = 0;
@@ -443,19 +408,16 @@ public class PerfilPanelView extends JPanel {
             mini.setPreferredSize(new Dimension(68, 42));
             mini.setBorder(BorderFactory.createLineBorder(new Color(200, 202, 220), 1, true));
 
-            // Barra lateral (sidebar color)
             JPanel bar = new JPanel();
             bar.setBackground(t.sidebarDark);
             bar.setBounds(0, 0, 18, 42);
             mini.add(bar);
 
-            // Área de contenido
             JPanel cont = new JPanel();
             cont.setBackground(t.contentBg);
             cont.setBounds(18, 0, 50, 42);
             mini.add(cont);
 
-            // Punto de acento
             JPanel acc = new JPanel() {
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
@@ -473,8 +435,6 @@ public class PerfilPanelView extends JPanel {
         }
     }
 
-    // ── API pública ───────────────────────────────────────────────────────────
-
     public void setNombre(String nombre)   { lblNombre.setText(nombre); }
     public void setUsername(String u)      { lblUsername.setText("@" + u); }
 
@@ -484,7 +444,7 @@ public class PerfilPanelView extends JPanel {
     }
 
     public void setRacha(int racha) {
-        lblRachaHeader.setText("🔥  " + racha);
+        lblRachaHeader.setText("" + racha);
     }
 
     // Pestaña perfil
@@ -516,7 +476,6 @@ public class PerfilPanelView extends JPanel {
     public void setOnActivarCosmetico(IntConsumer cb)     { onActivarCosmético = cb; }
     public void setOnRefresh(Runnable cb)                 { onRefreshPerfil    = cb; }
 
-    // ── Helpers de construcción ────────────────────────────────────────────────
 
     private JLabel buildLabel(String texto) {
         JLabel lbl = new JLabel(texto);
@@ -594,9 +553,6 @@ public class PerfilPanelView extends JPanel {
         return lbl;
     }
 
-    // ── Avatar panel interno ───────────────────────────────────────────────────
-
-    /** Panel circular que pinta un avatar con las iniciales del usuario y el marco activo. */
     public class AvatarPanel extends JPanel {
         private String iniciales = "?";
         private final int radio;
@@ -644,10 +600,6 @@ public class PerfilPanelView extends JPanel {
         }
     }
 
-    /**
-     * WrapLayout: FlowLayout con salto de línea automático.
-     * Necesario para que el grid de cosméticos se adapte al ancho disponible.
-     */
     private static class WrapLayout extends FlowLayout {
         public WrapLayout(int align, int hgap, int vgap) { super(align, hgap, vgap); }
 
@@ -686,5 +638,9 @@ public class PerfilPanelView extends JPanel {
                 return new Dimension(targetWidth, y);
             }
         }
+    }
+
+    public AvatarPanel getAvatarPanel() {
+        return avatarPanel;
     }
 }

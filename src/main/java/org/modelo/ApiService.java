@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ApiService {
 
-    private static final String BASE_URL = "";
+    private static final String BASE_URL = "https://back-k3t4.onrender.com/api";
 
     private JSONObject request(String metodo, String ruta, JSONObject body) throws Exception {
         URL url = new URL(BASE_URL + ruta);
@@ -260,4 +260,19 @@ public class ApiService {
         }
         return lista;
     }
+
+    public void comprarCosmetico(int usuarioId, int cosmeticoId) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("usuarioId",    usuarioId);
+        body.put("cosmeticoId",  cosmeticoId);
+        requestVoid("POST", "/cosmeticos/comprar", body);
+    }
+
+    public void activarCosmetico(int usuarioId, int cosmeticoId) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("usuarioId",   usuarioId);
+        body.put("cosmeticoId", cosmeticoId);
+        requestVoid("PUT", "/cosmeticos/activar", body);
+    }
+
 }
