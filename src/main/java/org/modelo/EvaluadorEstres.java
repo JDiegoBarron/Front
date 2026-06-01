@@ -109,10 +109,9 @@ public class EvaluadorEstres {
     }
 
     /**
-     Inferencia Mamdani con 9 reglas.
-     Defuzzificación: promedio ponderado de centroides (weighted average).
-
-     Reglas:
+     * mamdani con 9 reglas
+     * centroides con peso
+     * reglas
        cargaAlta  ∧ estresAlto  → riesgo 5.0   (riesgo alto)
        cargaAlta  ∧ estresMedio → riesgo 3.8
        cargaAlta  ∧ estresBajo  → riesgo 2.5   (resiliente)
