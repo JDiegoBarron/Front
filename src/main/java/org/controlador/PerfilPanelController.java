@@ -2,9 +2,11 @@ package org.controlador;
 
 import org.json.JSONObject;
 import org.modelo.*;
+import org.vista.BienvenidaView;
 import org.vista.PerfilPanelView;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 
 public class PerfilPanelController {
@@ -132,8 +134,6 @@ public class PerfilPanelController {
         }).start();
     }
 
-    // ── Activar cosmético ──────────────────────────────────────────────────────
-
     private void manejarActivar(int cosmeticoId) {
         new Thread(() -> {
             try {
@@ -142,17 +142,27 @@ public class PerfilPanelController {
 
                 SwingUtilities.invokeLater(() -> {
                     vista.mostrarCosmeticos(cosmeticos);
-                    // Aplicar cambio de tema/marco inmediatamente
+
                     for (CosmeticoModel c : cosmeticos) {
                         if (c.getId() == cosmeticoId && c.isActivo()) {
                             if (c.getTipo() == CosmeticoModel.Tipo.TEMA) {
+
+                                // 1. Aplicar el tema en TemaApp
                                 TemaApp.setTema(c.getIndiceLocal());
+
+                                // 2. Actualizar los colores estáticos de BienvenidaView
+                                BienvenidaView.aplicarTema();
+
+                                // 3. Recrear la ventana principal con los nuevos colores
+                                recrearVentanaPrincipal();
+
                             } else {
+                                // Marco: solo repintar el avatar, no hace falta recrear
                                 TemaApp.setMarco(c.getIndiceLocal());
+                                vista.getAvatarPanel().repaint();
                             }
                         }
                     }
-                    vista.getAvatarPanel().repaint();
                 });
 
             } catch (Exception ex) {
@@ -162,5 +172,14 @@ public class PerfilPanelController {
                                 JOptionPane.ERROR_MESSAGE));
             }
         }).start();
+    }
+
+    private void recrearVentanaPrincipal() {
+        // Buscar el JFrame padre recorriendo la jerarquía de componentes
+        Window ventanaPadre = SwingUtilities.getWindowAncestor(vista);
+        if (ventanaPadre != null) ventanaPadre.dispose();
+
+        BienvenidaView nuevaVentana = new BienvenidaView(usuario.getNombreCompleto());
+        new BienvenidaController(nuevaVentana, usuario);
     }
 }

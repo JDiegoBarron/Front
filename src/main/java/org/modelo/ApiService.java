@@ -209,6 +209,7 @@ public class ApiService {
     }
 
     public JSONObject obtenerPerfil(int usuarioId) throws Exception {
+        System.out.println("obtener perfil" + request("GET", "/perfil/" + usuarioId, null));
         return request("GET", "/perfil/" + usuarioId, null);
     }
 
@@ -222,11 +223,13 @@ public class ApiService {
 
     public RachaModel registrarLogin(int usuarioId) throws Exception {
         JSONObject res = request("POST", "/racha/registro/" + usuarioId, null);
+        System.out.println("Registrar login" + res);
         return parseRacha(res);
     }
 
     public RachaModel obtenerRacha(int usuarioId) throws Exception {
         JSONObject res = request("GET", "/racha/" + usuarioId, null);
+        System.out.println("Obtener racha" + res);
         return parseRacha(res);
     }
 

@@ -358,7 +358,7 @@ public class CalendarioView extends JPanel {
         listaTareasDetalle.removeAll();
 
         if (tareas.isEmpty()) {
-            JLabel vacio = new JLabel("Sin tareas este día ✓");
+            JLabel vacio = new JLabel("Sin tareas este día");
             vacio.setFont(new Font("Segoe UI", Font.PLAIN, 13));
             vacio.setForeground(new Color(160, 170, 185));
             vacio.setAlignmentX(LEFT_ALIGNMENT);

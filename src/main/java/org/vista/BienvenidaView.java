@@ -1,5 +1,7 @@
 package org.vista;
 
+import org.modelo.TemaApp;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -9,27 +11,27 @@ import java.util.Map;
 
 public class BienvenidaView extends JFrame {
 
-    public static final Color SIDEBAR_BG     = new Color(32, 40, 120);
-    public static final Color SIDEBAR_DARK   = new Color(24, 30, 95);
-    public static final Color SIDEBAR_HOVER  = new Color(55, 65, 170);
-    public static final Color SIDEBAR_ACTIVE = new Color(80, 90, 200);
-    public static final Color CONTENT_BG     = new Color(245, 247, 250);
-    public static final Color ACCENT         = new Color(80, 90, 200);
-    public static final Color TEXT_DARK      = new Color(40, 40, 80);
+    public static Color SIDEBAR_BG = new Color(32, 40, 120);
+    public static Color SIDEBAR_DARK = new Color(24, 30, 95);
+    public static Color SIDEBAR_HOVER = new Color(55, 65, 170);
+    public static Color SIDEBAR_ACTIVE = new Color(80, 90, 200);
+    public static Color CONTENT_BG = new Color(245, 247, 250);
+    public static Color ACCENT = new Color(80, 90, 200);
+    public static Color TEXT_DARK = new Color(40, 40, 80);
 
-    private final CardLayout                 cardLayout   = new CardLayout();
-    private final JPanel                     contentArea  = new JPanel(cardLayout);
-    private final Map<String, JButton>       navButtons   = new LinkedHashMap<>();
-    private       String                     activeCard   = "";
+    private final CardLayout cardLayout = new CardLayout();
+    private final JPanel contentArea = new JPanel(cardLayout);
+    private final Map<String, JButton> navButtons = new LinkedHashMap<>();
+    private String activeCard = "";
 
     private JButton botonCerrarSesion;
 
-    public static final String CARD_INICIO      = "inicio";
-    public static final String CARD_CALENDARIO  = "calendario";
-    public static final String CARD_TAREAS      = "tareas";
+    public static final String CARD_INICIO = "inicio";
+    public static final String CARD_CALENDARIO = "calendario";
+    public static final String CARD_TAREAS = "tareas";
     public static final String CARD_CREAR_TAREA = "crear_tarea";
-    public static final String CARD_BIENESTAR   = "bienestar";
-    public static final String CARD_PERFIL      = "perfil";
+    public static final String CARD_BIENESTAR = "bienestar";
+    public static final String CARD_PERFIL = "perfil";
 
     public BienvenidaView(String nombreCompleto) {
         setTitle("Mi Agenda · UPIIZ");
@@ -61,12 +63,12 @@ public class BienvenidaView extends JFrame {
         sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
 
         String[][] items = {
-                { CARD_INICIO,      "Inicio"          },
-                { CARD_CALENDARIO,  "Calendario"       },
-                { CARD_TAREAS,      "Lista de tareas"  },
-                { CARD_CREAR_TAREA, "Crear tarea"      },
-                { CARD_BIENESTAR,   "Bienestar"        },
-                { CARD_PERFIL,      "Mi perfil"        },
+                {CARD_INICIO, "Inicio"},
+                {CARD_CALENDARIO, "Calendario"},
+                {CARD_TAREAS, "Lista de tareas"},
+                {CARD_CREAR_TAREA, "Crear tarea"},
+                {CARD_BIENESTAR, "Bienestar"},
+                {CARD_PERFIL, "Mi perfil"},
         };
         for (String[] item : items) {
             JButton btn = buildNavBtn(item[1] + "  ", item[0]);
@@ -119,13 +121,16 @@ public class BienvenidaView extends JFrame {
         btn.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 16));
 
         btn.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
+            @Override
+            public void mouseEntered(MouseEvent e) {
                 if (!cardKey.equals(activeCard)) {
                     btn.setBackground(SIDEBAR_HOVER);
                     btn.setForeground(Color.WHITE);
                 }
             }
-            @Override public void mouseExited(MouseEvent e) {
+
+            @Override
+            public void mouseExited(MouseEvent e) {
                 if (!cardKey.equals(activeCard)) {
                     btn.setBackground(SIDEBAR_BG);
                     btn.setForeground(new Color(195, 205, 245));
@@ -197,8 +202,13 @@ public class BienvenidaView extends JFrame {
         cardLayout.show(contentArea, cardKey);
     }
 
-    public JButton getNavButton(String key)      { return navButtons.get(key); }
-    public JButton getBotonCerrarSesion()        { return botonCerrarSesion; }
+    public JButton getNavButton(String key) {
+        return navButtons.get(key);
+    }
+
+    public JButton getBotonCerrarSesion() {
+        return botonCerrarSesion;
+    }
 
     public static JPanel buildPlaceholder(String icon, String title, String subtitle) {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -227,5 +237,16 @@ public class BienvenidaView extends JFrame {
         panel.add(sl, gbc);
 
         return panel;
+    }
+
+    public static void aplicarTema() {
+        TemaApp.Tema t = TemaApp.getTema();
+        SIDEBAR_BG     = t.sidebarBg;
+        SIDEBAR_DARK   = t.sidebarDark;
+        SIDEBAR_HOVER  = t.sidebarHover;
+        SIDEBAR_ACTIVE = t.sidebarActive;
+        CONTENT_BG     = t.contentBg;
+        ACCENT         = t.accent;
+        TEXT_DARK      = t.textDark;
     }
 }

@@ -37,8 +37,8 @@ public class RachaNotificacionView extends JDialog {
 
         TemaApp.Tema tema = TemaApp.getTema();
 
-        JLabel emojiLbl = new JLabel(racha.getRachaActual() >= 7 ? "🔥" : "⭐", SwingConstants.CENTER);
-        emojiLbl.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 52));
+        JLabel emojiLbl = new JLabel(racha.getRachaActual() >= 7 ? "Genial" : "Bien hecho", SwingConstants.CENTER);
+        emojiLbl.setFont(new Font("Segoe UI", Font.PLAIN, 52));
         emojiLbl.setAlignmentX(CENTER_ALIGNMENT);
         root.add(emojiLbl);
         root.add(Box.createRigidArea(new Dimension(0, 12)));
@@ -47,7 +47,7 @@ public class RachaNotificacionView extends JDialog {
         if (racha.getRachaActual() == 1) {
             titulo = new JLabel("¡Primer día!", SwingConstants.CENTER);
         } else if (racha.getRachaActual() >= 7) {
-            titulo = new JLabel("¡" + racha.getRachaActual() + " días de racha! 🔥", SwingConstants.CENTER);
+            titulo = new JLabel("¡" + racha.getRachaActual() + " días de racha!", SwingConstants.CENTER);
         } else {
             titulo = new JLabel("¡" + racha.getRachaActual() + " días seguidos!", SwingConstants.CENTER);
         }
@@ -68,8 +68,7 @@ public class RachaNotificacionView extends JDialog {
         monPanel.setOpaque(false);
         monPanel.setAlignmentX(CENTER_ALIGNMENT);
 
-        JLabel monIcon = new JLabel("🪙");
-        monIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
+        JLabel monIcon = new JLabel("");
 
         JPanel monTextos = new JPanel();
         monTextos.setLayout(new BoxLayout(monTextos, BoxLayout.Y_AXIS));
@@ -91,7 +90,7 @@ public class RachaNotificacionView extends JDialog {
         root.add(Box.createRigidArea(new Dimension(0, 8)));
 
         if (racha.getRachaActual() == racha.getMejorRacha() && racha.getMejorRacha() > 1) {
-            JLabel record = new JLabel("🏆 ¡Nuevo récord personal!", SwingConstants.CENTER);
+            JLabel record = new JLabel("¡Nuevo récord personal!", SwingConstants.CENTER);
             record.setFont(new Font("Segoe UI", Font.BOLD, 12));
             record.setForeground(new Color(200, 140, 0));
             record.setAlignmentX(CENTER_ALIGNMENT);

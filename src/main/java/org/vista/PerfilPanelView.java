@@ -102,7 +102,7 @@ public class PerfilPanelView extends JPanel {
                 new EmptyBorder(8, 16, 8, 16)));
 
         JLabel iconLbl = new JLabel(icono + "  " + valor, SwingConstants.CENTER);
-        iconLbl.setFont(new Font("Segoe UI Emoji", Font.BOLD, 16));
+        iconLbl.setFont(new Font("Segoe UI", Font.BOLD, 16));
         iconLbl.setForeground(BienvenidaView.TEXT_DARK);
         iconLbl.setAlignmentX(CENTER_ALIGNMENT);
 
@@ -126,7 +126,7 @@ public class PerfilPanelView extends JPanel {
 
         tabs.addTab("  Mi perfil  ",    buildTabPerfil());
         tabs.addTab("  Cosmética  ",    buildTabCosmetica());
-        tabs.addTab("  Estadísticas  ", buildTabEstadisticas());
+        // tabs.addTab("  Estadísticas  ", buildTabEstadisticas()); todo: futura implementacion
 
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(BienvenidaView.CONTENT_BG);
@@ -204,7 +204,7 @@ public class PerfilPanelView extends JPanel {
         balancePanel.setAlignmentX(LEFT_ALIGNMENT);
         balancePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        lblMonedas = new JLabel("🪙  0 monedas disponibles");
+        lblMonedas = new JLabel("0 monedas disponibles");
         lblMonedas.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblMonedas.setForeground(new Color(140, 100, 0));
         balancePanel.add(lblMonedas);
@@ -346,7 +346,7 @@ public class PerfilPanelView extends JPanel {
         botonPanel.setAlignmentX(CENTER_ALIGNMENT);
 
         if (esActivo) {
-            JLabel lActivo = new JLabel("✓ Activo");
+            JLabel lActivo = new JLabel("Activo");
             lActivo.setFont(new Font("Segoe UI", Font.BOLD, 11));
             lActivo.setForeground(tema.accent);
             botonPanel.add(lActivo);
@@ -355,7 +355,7 @@ public class PerfilPanelView extends JPanel {
             btnActivar.addActionListener(e -> { if (onActivarCosmético != null) onActivarCosmético.accept(c.getId()); });
             botonPanel.add(btnActivar);
         } else {
-            JButton btnComprar = buildBotonMini("🪙 " + c.getPrecio(), new Color(170, 120, 0));
+            JButton btnComprar = buildBotonMini("" + c.getPrecio(), new Color(170, 120, 0));
             btnComprar.addActionListener(e -> { if (onComprarCosmético != null) onComprarCosmético.accept(c.getId()); });
             botonPanel.add(btnComprar);
         }
@@ -439,8 +439,8 @@ public class PerfilPanelView extends JPanel {
     public void setUsername(String u)      { lblUsername.setText("@" + u); }
 
     public void setMonedas(int monedas) {
-        lblMonedasHeader.setText("🪙  " + monedas);
-        lblMonedas.setText("🪙  " + monedas + " monedas disponibles");
+        lblMonedasHeader.setText("" + monedas);
+        lblMonedas.setText(monedas + " monedas disponibles");
     }
 
     public void setRacha(int racha) {
