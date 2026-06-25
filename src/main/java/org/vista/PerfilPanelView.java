@@ -50,8 +50,6 @@ public class PerfilPanelView extends JPanel {
         setLayout(new BorderLayout());
         setBackground(BienvenidaView.CONTENT_BG);
 
-        debugMarcos();
-
         add(buildTopHeader(), BorderLayout.NORTH);
         add(buildTabs(),      BorderLayout.CENTER);
     }
@@ -64,9 +62,8 @@ public class PerfilPanelView extends JPanel {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 222, 235)),
                 new EmptyBorder(20, 28, 20, 28)));
 
-        // ── Avatar con wrapper de tamaño fijo ─────────────────────────────────
         avatarPanel = new AvatarPanel(52);
-        int tam = 52 * 2 + 16; // = 120, mismo cálculo que el constructor de AvatarPanel
+        int tam = 52 * 2 + 16;
 
         JPanel avatarWrapper = new JPanel(null);
         avatarWrapper.setOpaque(false);
@@ -76,7 +73,6 @@ public class PerfilPanelView extends JPanel {
         avatarPanel.setBounds(0, 0, tam, tam);
         avatarWrapper.add(avatarPanel);
 
-        // ── Info del usuario ──────────────────────────────────────────────────
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(Color.WHITE);
@@ -94,14 +90,12 @@ public class PerfilPanelView extends JPanel {
         infoPanel.add(Box.createRigidArea(new Dimension(0, 3)));
         infoPanel.add(lblUsername);
 
-        // ── Panel izquierdo ───────────────────────────────────────────────────
         JPanel izquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         izquierdo.setBackground(Color.WHITE);
-        izquierdo.add(avatarWrapper); // ← wrapper en lugar de avatarPanel directo
+        izquierdo.add(avatarWrapper);
         izquierdo.add(infoPanel);
         header.add(izquierdo, BorderLayout.WEST);
 
-        // ── Stats ─────────────────────────────────────────────────────────────
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
         statsPanel.setBackground(Color.WHITE);
         statsPanel.add(buildStatChip("", "0", "Monedas", e -> lblMonedasHeader = e));
@@ -145,15 +139,12 @@ public class PerfilPanelView extends JPanel {
 
         tabs.addTab("  Mi perfil  ",    buildTabPerfil());
         tabs.addTab("  Cosmética  ",    buildTabCosmetica());
-        // tabs.addTab("  Estadísticas  ", buildTabEstadisticas()); todo: futura implementacion
 
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(BienvenidaView.CONTENT_BG);
         wrapper.add(tabs, BorderLayout.CENTER);
         return wrapper;
     }
-
-    // ── Pestaña 1: Mi Perfil ──────────────────────────────────────────────────
 
     private JPanel buildTabPerfil() {
         JPanel outer = new JPanel(new GridBagLayout());
@@ -259,38 +250,6 @@ public class PerfilPanelView extends JPanel {
         return wrapper;
     }
 
-    private JPanel buildTabEstadisticas() {
-        JPanel outer = new JPanel(new GridBagLayout());
-        outer.setBackground(BienvenidaView.CONTENT_BG);
-
-        JPanel content = new JPanel();
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBackground(Color.WHITE);
-        content.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(215, 218, 235), 1, true),
-                new EmptyBorder(28, 32, 28, 32)));
-
-        content.add(buildStatRow("Racha actual",     "0 días",  new Color(211, 47, 47)));
-        content.add(Box.createRigidArea(new Dimension(0, 12)));
-        content.add(buildStatRow("Mejor racha",      "0 días",  new Color(180, 130, 0)));
-        content.add(Box.createRigidArea(new Dimension(0, 12)));
-        content.add(buildStatRow("Monedas acumuladas","0",      new Color(120, 80, 0)));
-        content.add(Box.createRigidArea(new Dimension(0, 12)));
-        content.add(buildStatRow("Tareas completadas","0",      new Color(27, 94, 32)));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 0.6;
-        gbc.weighty = 1.0;
-        gbc.insets = new Insets(28, 28, 28, 28);
-        outer.add(content, gbc);
-
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setBackground(BienvenidaView.CONTENT_BG);
-        wrapper.add(outer, BorderLayout.CENTER);
-        return wrapper;
-    }
-
     private JPanel buildStatRow(String nombre, String valor, Color color) {
         JPanel row = new JPanel(new BorderLayout(14, 0));
         row.setBackground(new Color(248, 249, 252));
@@ -345,13 +304,11 @@ public class PerfilPanelView extends JPanel {
         card.setPreferredSize(new Dimension(148, 130));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Previsualización del cosmético
         JPanel preview = buildCosmeticoPreview(c);
         preview.setAlignmentX(CENTER_ALIGNMENT);
         card.add(preview);
         card.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        // Nombre
         JLabel lNombre = new JLabel(c.getNombre(), SwingConstants.CENTER);
         lNombre.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lNombre.setForeground(BienvenidaView.TEXT_DARK);
@@ -359,7 +316,6 @@ public class PerfilPanelView extends JPanel {
         card.add(lNombre);
         card.add(Box.createRigidArea(new Dimension(0, 4)));
 
-        // Estado / precio
         JPanel botonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         botonPanel.setOpaque(false);
         botonPanel.setAlignmentX(CENTER_ALIGNMENT);
@@ -381,7 +337,6 @@ public class PerfilPanelView extends JPanel {
 
         card.add(botonPanel);
 
-        // Hover efecto
         card.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 if (!esActivo) card.setBackground(new Color(248, 249, 255));
@@ -396,7 +351,7 @@ public class PerfilPanelView extends JPanel {
 
     private JPanel buildCosmeticoPreview(CosmeticoModel c) {
         if (c.getTipo() == CosmeticoModel.Tipo.MARCO) {
-            int previewSize = 56; // tamaño del panel de previsualización
+            int previewSize = 56;
             return new JPanel() {
                 {
                     setOpaque(false);
@@ -414,7 +369,7 @@ public class PerfilPanelView extends JPanel {
 
                     int cx    = getWidth()  / 2;
                     int cy    = getHeight() / 2;
-                    int radio = previewSize / 2 - 6; // radio del círculo interior
+                    int radio = previewSize / 2 - 6;
 
                     TemaApp.Tema tema = TemaApp.getTema();
                     g2.setColor(tema.sidebarBg);
@@ -492,7 +447,6 @@ public class PerfilPanelView extends JPanel {
             BufferedImage original = ImageIO.read(is);
             if (original == null) return null;
 
-            // Escalar también de forma síncrona con Graphics2D
             BufferedImage scaled = new BufferedImage(tam, tam, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2 = scaled.createGraphics();
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -522,7 +476,6 @@ public class PerfilPanelView extends JPanel {
         lblRachaHeader.setText("" + racha);
     }
 
-    // Pestaña perfil
     public String getCorreo()   {
         String t = campoCorreo.getText().trim();
         return t.equals("correo@ejemplo.com") ? "" : t;
@@ -652,7 +605,6 @@ public class PerfilPanelView extends JPanel {
 
         @Override
         protected void paintComponent(Graphics g) {
-            // NO llamar super.paintComponent(g) para evitar que rellene el fondo cuadrado
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -661,15 +613,12 @@ public class PerfilPanelView extends JPanel {
             int cx = getWidth()  / 2;
             int cy = getHeight() / 2;
 
-            // ── 1. Definir la forma circular ──────────────────────────────────────
             java.awt.geom.Ellipse2D circulo =
                     new java.awt.geom.Ellipse2D.Float(cx - radio, cy - radio, radio * 2, radio * 2);
 
-            // ── 2. Fondo circular con color del tema ──────────────────────────────
             g2.setColor(tema.sidebarBg);
             g2.fill(circulo);
 
-            // ── 3. Clip circular → las iniciales no salen del círculo ─────────────
             g2.setClip(circulo);
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Segoe UI", Font.BOLD, (int)(radio * 0.65)));
@@ -678,7 +627,6 @@ public class PerfilPanelView extends JPanel {
             int textH = fm.getAscent() - fm.getDescent();
             g2.drawString(iniciales, cx - textW / 2, cy + textH / 2);
 
-            // ── 4. Quitar clip y pintar el marco PNG encima ───────────────────────
             g2.setClip(null);
             int tam = Math.min(getWidth(), getHeight());
             Image marco = TemaApp.getImagenMarco(tam);
@@ -727,40 +675,6 @@ public class PerfilPanelView extends JPanel {
                 y += height + vgap + insets.bottom;
                 return new Dimension(targetWidth, y);
             }
-        }
-    }
-
-    private void debugMarcos() {
-        String archivo = "marcos/arbol.png"; // probar con el primero
-
-        // Intento 1: ruta absoluta con /
-        InputStream is1 = getClass().getResourceAsStream("/" + archivo);
-        System.out.println("Intento 1 (/" + archivo + "): " + (is1 != null ? "OK" : "NULL"));
-
-        // Intento 2: ruta relativa sin /
-        InputStream is2 = getClass().getResourceAsStream(archivo);
-        System.out.println("Intento 2 (" + archivo + "): " + (is2 != null ? "OK" : "NULL"));
-
-        // Intento 3: ClassLoader con ruta absoluta
-        InputStream is3 = getClass().getClassLoader().getResourceAsStream(archivo);
-        System.out.println("Intento 3 (ClassLoader, " + archivo + "): " + (is3 != null ? "OK" : "NULL"));
-
-        // Intento 4: ClassLoader con /
-        InputStream is4 = getClass().getClassLoader().getResourceAsStream("/" + archivo);
-        System.out.println("Intento 4 (ClassLoader, /" + archivo + "): " + (is4 != null ? "OK" : "NULL"));
-
-        // Intento 5: listar lo que SÍ ve el ClassLoader en la raíz
-        try {
-            URL raiz = getClass().getClassLoader().getResource("");
-            System.out.println("Raíz del ClassLoader: " + raiz);
-
-            URL carpetaMarcos = getClass().getClassLoader().getResource("marcos");
-            System.out.println("Carpeta marcos: " + carpetaMarcos);
-
-            URL carpetaMarcosBarra = getClass().getClassLoader().getResource("marcos/");
-            System.out.println("Carpeta marcos/: " + carpetaMarcosBarra);
-        } catch (Exception e) {
-            System.out.println("Error listando raíz: " + e.getMessage());
         }
     }
 

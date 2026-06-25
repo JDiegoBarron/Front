@@ -14,7 +14,7 @@ public class ResultadoEvaluacion {
     private final double   estresPercibido; // promedio global del cuestionario
     private final double   nivelGlobal;    // 1-5 salida difusa
     private final String   situacion;
-    private final String   nivelLabel;     // "Bajo" | "Medio" | "Alto"
+    private final String   nivelLabel;
 
     public ResultadoEvaluacion(double carga, double[] areas, double estresPercibido,
                                double nivelGlobal, String situacion, String nivelLabel) {

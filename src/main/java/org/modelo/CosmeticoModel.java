@@ -9,7 +9,7 @@ public class CosmeticoModel {
     private final String descripcion;
     private final Tipo   tipo;
     private final int    precio;       // en monedas
-    private final int    indiceLocal;  // índice en TemaApp.TEMAS o TemaApp.NOMBRES_MARCOS
+    private final int    indiceLocal;
     private       boolean comprado;
     private       boolean activo;
 

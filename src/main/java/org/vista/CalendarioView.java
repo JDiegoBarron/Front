@@ -28,7 +28,7 @@ public class CalendarioView extends JPanel {
     private JPanel  listaTareasDetalle;
     private JLabel  lblEstado;
 
-    private Consumer<YearMonth> onMesCambiado;   // se llama al navegar mes
+    private Consumer<YearMonth> onMesCambiado;
     private Consumer<LocalDate> onDiaSeleccionado;
 
     private static final String[] DIAS_SEMANA = {"Lun","Mar","Mié","Jue","Vie","Sáb","Dom"};

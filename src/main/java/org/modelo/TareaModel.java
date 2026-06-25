@@ -6,8 +6,8 @@ public class TareaModel {
     private String titulo;
     private String descripcion;
     private String fechaLimite;   // "YYYY-MM-DD"
-    private String categoria;     // "Curricular" | "Extracurricular" | "Recreación"
-    private String prioridad;     // "Alta" | "Media" | "Baja"
+    private String categoria;
+    private String prioridad;
     private int    dificultad;    // 1-5
     private boolean completada;
     private boolean vencida;

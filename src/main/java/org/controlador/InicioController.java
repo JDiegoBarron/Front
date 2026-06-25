@@ -12,42 +12,56 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class InicioController {
-
-    private final InicioView            vista;
-    private final UsuarioModel          usuario;
-    private final ApiService            apiService;
-    private final Supplier<int[]>       respuestasProveedor;
-    private final Runnable              irACuestionario;
+    private final InicioView      vista;
+    private final UsuarioModel    usuario;
+    private final ApiService      apiService;
+    private final Supplier<int[]> respuestasProveedor;
+    private final Runnable        irACuestionario;
 
     public InicioController(InicioView vista, UsuarioModel usuario,
                             Supplier<int[]> respuestasProveedor,
                             Runnable irACuestionario) {
         this.vista               = vista;
-        this.usuario             = usuario;
-        this.apiService          = new ApiService();
-        this.respuestasProveedor = respuestasProveedor;
-        this.irACuestionario     = irACuestionario;
-
+        this.usuario              = usuario;
+        this.apiService           = new ApiService();
+        this.respuestasProveedor  = respuestasProveedor;
+        this.irACuestionario      = irACuestionario;
         vista.setOnActualizar(this::cargar);
         vista.setOnIrCuestionario(() -> { if (irACuestionario != null) irACuestionario.run(); });
     }
 
     public void cargar() {
-        int[] respuestas = respuestasProveedor.get();
-        if (respuestas == null) {
-            vista.mostrarSinDatos();
+        int[] respuestasEnMemoria = respuestasProveedor.get();
+
+        if (respuestasEnMemoria != null) {
+            // El usuario ya contestó en esta sesión, no hace falta ir al backend
+            cargarConRespuestas(respuestasEnMemoria);
             return;
         }
 
+        // No hay nada en memoria (reinicio, cambio de tema): preguntar al backend
         vista.mostrarCargando();
+        new Thread(() -> {
+            try {
+                int[] respuestasGuardadas = apiService.obtenerUltimasRespuestas(usuario.getId());
+                if (respuestasGuardadas == null) {
+                    SwingUtilities.invokeLater(vista::mostrarSinDatos);
+                    return;
+                }
+                cargarConRespuestas(respuestasGuardadas);
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(vista::mostrarSinDatos);
+            }
+        }).start();
+    }
 
+    private void cargarConRespuestas(int[] respuestas) {
+        vista.mostrarCargando();
         new Thread(() -> {
             try {
                 List<TareaModel> tareas = apiService.obtenerTareasProximas(usuario.getId());
                 ResultadoEvaluacion resultado = EvaluadorEstres.evaluar(tareas, respuestas);
-
                 SwingUtilities.invokeLater(() -> vista.mostrarResultados(resultado));
-
             } catch (Exception ex) {
                 SwingUtilities.invokeLater(() -> {
                     ResultadoEvaluacion resultado = EvaluadorEstres.evaluar(null, respuestas);

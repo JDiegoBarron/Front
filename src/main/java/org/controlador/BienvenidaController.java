@@ -64,10 +64,10 @@ public class BienvenidaController {
         vista.addCard(crearTareaView, BienvenidaView.CARD_CREAR_TAREA);
 
         CuestionarioView cuestionarioView = new CuestionarioView();
-        new CuestionarioController(cuestionarioView, respuestas -> {
+        new CuestionarioController(cuestionarioView, usuario.getId(), respuestas -> {
             respuestasCuestionario = respuestas;
             inicioCtrl.cargar();
-            vista.switchCard(BienvenidaView.CARD_INICIO);
+            vista.switchCard(BienvenidaView.CARD_BIENESTAR);
         });
         vista.addCard(cuestionarioView, BienvenidaView.CARD_BIENESTAR);
 

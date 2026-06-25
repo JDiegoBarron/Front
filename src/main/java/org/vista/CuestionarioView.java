@@ -1,8 +1,11 @@
 package org.vista;
 
+import org.modelo.EstadoSeccionDto;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Map;
 
 public class CuestionarioView extends JPanel {
 
@@ -47,7 +50,14 @@ public class CuestionarioView extends JPanel {
             "Área social", "Área de equilibrio vida-estudio", "Área física"
     };
 
-    private final JSlider[] sliders = new JSlider[21]; // índice global
+    private static final String[] CLAVES_AREAS = {
+            "academica", "sueno", "emocional", "social", "equilibrio", "fisica"
+    };
+
+    private final JSlider[] sliders = new JSlider[21];
+    private final int[]     areaPorSlider = new int[21];
+    private final JLabel[]  lblEstadoArea = new JLabel[6];
+
     private final JButton   btnEnviar;
     private final JLabel    lblMensaje;
     private Runnable        onEnviar;
@@ -82,7 +92,6 @@ public class CuestionarioView extends JPanel {
         header.add(subtitulo, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // ── Contenido con scroll ──────────────────────────────────────────────
         JPanel contenido = new JPanel();
         contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
         contenido.setBackground(BienvenidaView.CONTENT_BG);
@@ -90,10 +99,21 @@ public class CuestionarioView extends JPanel {
 
         int idxGlobal = 0;
         for (int a = 0; a < PREGUNTAS_POR_AREA.length; a++) {
-            contenido.add(buildSeccionHeader(TITULOS_AREAS[a], COLORES_AREA[a]));
+            JPanel headerArea = buildSeccionHeader(TITULOS_AREAS[a], COLORES_AREA[a]);
+            contenido.add(headerArea);
+
+            JLabel lblEstado = new JLabel(" ");
+            lblEstado.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+            lblEstado.setForeground(new Color(120, 120, 120));
+            lblEstado.setAlignmentX(LEFT_ALIGNMENT);
+            lblEstado.setBorder(new EmptyBorder(4, 4, 4, 0));
+            lblEstadoArea[a] = lblEstado;
+            contenido.add(lblEstado);
+
             contenido.add(Box.createRigidArea(new Dimension(0, 10)));
 
             for (String texto : PREGUNTAS_POR_AREA[a]) {
+                areaPorSlider[idxGlobal] = a;
                 contenido.add(buildPreguntaRow(idxGlobal, texto));
                 contenido.add(Box.createRigidArea(new Dimension(0, 6)));
                 idxGlobal++;
@@ -178,6 +198,44 @@ public class CuestionarioView extends JPanel {
         return row;
     }
 
+    /**
+     * NUEVO: aplica el estado recibido del backend.
+     * - Deshabilita sliders de áreas no disponibles y los precarga con su último valor.
+     * - Muestra el mensaje de "Disponible en X días" debajo del header del área.
+     */
+    public void aplicarEstadoSecciones(Map<String, EstadoSeccionDto> estadoPorClave) {
+        for (int a = 0; a < CLAVES_AREAS.length; a++) {
+            EstadoSeccionDto estado = estadoPorClave.get(CLAVES_AREAS[a]);
+            if (estado == null) continue;
+
+            boolean disponible = estado.disponible;
+
+            if (disponible) {
+                lblEstadoArea[a].setText(" ");
+            } else {
+                lblEstadoArea[a].setText("Disponible nuevamente: " + formatearFecha(estado.proximaDisponible));
+            }
+
+            for (int idxGlobal = 0; idxGlobal < 21; idxGlobal++) {
+                if (areaPorSlider[idxGlobal] != a) continue;
+
+                JSlider slider = sliders[idxGlobal];
+                slider.setEnabled(disponible);
+
+                if (!disponible) {
+                    Integer ultimoValor = estado.ultimosValores.get(idxGlobal + 1); // numeroPreguntaGlobal es 1-based
+                    if (ultimoValor != null) slider.setValue(ultimoValor);
+                }
+            }
+        }
+    }
+
+    private String formatearFecha(String iso) {
+        if (iso == null) return "pronto";
+        // El backend manda ISO; aquí se puede formatear más bonito si se desea (ej. con DateTimeFormatter)
+        return iso.substring(0, 10);
+    }
+
     public void setOnEnviar(Runnable cb)     { onEnviar = cb; }
     public void setMensaje(String msg)       { lblMensaje.setForeground(new Color(183, 28, 28)); lblMensaje.setText(msg); }
     public void setMensajeExito(String msg)  { lblMensaje.setForeground(new Color(46, 125, 50)); lblMensaje.setText(msg); }
@@ -187,5 +245,22 @@ public class CuestionarioView extends JPanel {
         int[] r = new int[21];
         for (int i = 0; i < 21; i++) r[i] = sliders[i].getValue();
         return r;
+    }
+
+    /**
+     * NUEVO: solo las preguntas de áreas habilitadas, agrupadas por clave de sección.
+     * Cada valor del map es una lista de pares [numeroPreguntaGlobal, valor].
+     */
+    public Map<String, java.util.List<int[]>> getRespuestasPorSeccionHabilitada() {
+        Map<String, java.util.List<int[]>> resultado = new java.util.LinkedHashMap<>();
+        for (int idxGlobal = 0; idxGlobal < 21; idxGlobal++) {
+            JSlider slider = sliders[idxGlobal];
+            if (!slider.isEnabled()) continue; // sección bloqueada, no se reenvía
+
+            String clave = CLAVES_AREAS[areaPorSlider[idxGlobal]];
+            resultado.computeIfAbsent(clave, k -> new java.util.ArrayList<>())
+                    .add(new int[]{ idxGlobal + 1, slider.getValue() });
+        }
+        return resultado;
     }
 }

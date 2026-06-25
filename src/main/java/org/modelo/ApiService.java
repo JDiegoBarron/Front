@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ApiService {
 
@@ -278,4 +279,56 @@ public class ApiService {
         requestVoid("PUT", "/cosmeticos/activar", body);
     }
 
+    public Map<String, EstadoSeccionDto> obtenerEstadoCuestionario(int usuarioId) throws Exception {
+        JSONArray arr = requestArray("/cuestionario/usuario/" + usuarioId + "/estado");
+        Map<String, EstadoSeccionDto> mapa = new java.util.HashMap<>();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+            Map<Integer, Integer> ultimosValores = new java.util.HashMap<>();
+            JSONObject valoresObj = obj.optJSONObject("ultimosValores");
+            if (valoresObj != null) {
+                for (String key : valoresObj.keySet()) {
+                    ultimosValores.put(Integer.parseInt(key), valoresObj.getInt(key));
+                }
+            }
+            mapa.put(obj.getString("clave"), new EstadoSeccionDto(
+                    obj.getString("clave"),
+                    obj.getString("nombre"),
+                    obj.getBoolean("disponible"),
+                    obj.optString("proximaDisponible", null),
+                    ultimosValores
+            ));
+        }
+        return mapa;
+    }
+
+    public void guardarCuestionario(int usuarioId, Map<String, List<int[]>> respuestasPorSeccion) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("usuarioId", usuarioId);
+
+        JSONObject porSeccion = new JSONObject();
+        for (var entry : respuestasPorSeccion.entrySet()) {
+            JSONArray respuestasArr = new JSONArray();
+            for (int[] par : entry.getValue()) { // par = {numeroPreguntaGlobal, valor}
+                JSONObject r = new JSONObject();
+                r.put("pregunta", par[0]);
+                r.put("valor", par[1]);
+                respuestasArr.put(r);
+            }
+            porSeccion.put(entry.getKey(), respuestasArr);
+        }
+        body.put("respuestasPorSeccion", porSeccion);
+
+        request("POST", "/cuestionario", body);
+    }
+
+    public int[] obtenerUltimasRespuestas(int usuarioId) throws Exception {
+        JSONObject res = request("GET", "/cuestionario/usuario/" + usuarioId + "/ultimas-respuestas", null);
+        if (res.isNull("respuestas")) return null;
+
+        JSONArray arr = res.getJSONArray("respuestas");
+        int[] respuestas = new int[21];
+        for (int i = 0; i < 21; i++) respuestas[i] = arr.getInt(i);
+        return respuestas;
+    }
 }
