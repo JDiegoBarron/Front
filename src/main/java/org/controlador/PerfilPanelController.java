@@ -30,8 +30,6 @@ public class PerfilPanelController {
         vista.setOnRefresh(this::cargar);
     }
 
-    // ── Carga inicial ─────────────────────────────────────────────────────────
-
     public void cargar() {
         new Thread(() -> {
             try {
@@ -40,19 +38,15 @@ public class PerfilPanelController {
                 List<CosmeticoModel> cosmeticos = apiService.obtenerCosmeticos(usuario.getId());
 
                 SwingUtilities.invokeLater(() -> {
-                    // Datos de perfil
                     vista.setCorreo(perfil.optString("correo",   ""));
                     vista.setCarrera(perfil.optString("carrera",  ""));
                     vista.setSemestre(perfil.optInt("semestre",   1));
 
-                    // Monedas y racha
                     vista.setMonedas(racha.getMonedasTotal());
                     vista.setRacha(racha.getRachaActual());
 
-                    // Cosméticos
                     vista.mostrarCosmeticos(cosmeticos);
 
-                    // Aplicar cosméticos activos localmente
                     for (CosmeticoModel c : cosmeticos) {
                         if (c.isActivo()) {
                             if (c.getTipo() == CosmeticoModel.Tipo.TEMA) {
@@ -70,8 +64,6 @@ public class PerfilPanelController {
             }
         }).start();
     }
-
-    // ── Guardar perfil ─────────────────────────────────────────────────────────
 
     private void manejarGuardarPerfil() {
         String correo  = vista.getCorreo();
@@ -110,13 +102,10 @@ public class PerfilPanelController {
         }).start();
     }
 
-    // ── Comprar cosmético ──────────────────────────────────────────────────────
-
     private void manejarComprar(int cosmeticoId) {
         new Thread(() -> {
             try {
                 apiService.comprarCosmetico(usuario.getId(), cosmeticoId);
-                // Recargar lista actualizada
                 List<CosmeticoModel> cosmeticos = apiService.obtenerCosmeticos(usuario.getId());
                 RachaModel racha = apiService.obtenerRacha(usuario.getId());
 
@@ -146,18 +135,11 @@ public class PerfilPanelController {
                     for (CosmeticoModel c : cosmeticos) {
                         if (c.getId() == cosmeticoId && c.isActivo()) {
                             if (c.getTipo() == CosmeticoModel.Tipo.TEMA) {
-
-                                // 1. Aplicar el tema en TemaApp
                                 TemaApp.setTema(c.getIndiceLocal());
-
-                                // 2. Actualizar los colores estáticos de BienvenidaView
                                 BienvenidaView.aplicarTema();
-
-                                // 3. Recrear la ventana principal con los nuevos colores
                                 recrearVentanaPrincipal();
 
                             } else {
-                                // Marco: solo repintar el avatar, no hace falta recrear
                                 TemaApp.setMarco(c.getIndiceLocal());
                                 vista.getAvatarPanel().repaint();
                             }

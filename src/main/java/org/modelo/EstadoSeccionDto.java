@@ -7,7 +7,7 @@ public class EstadoSeccionDto {
     public final String nombre;
     public final boolean disponible;
     public final String proximaDisponible; // ISO string o null
-    public final Map<Integer, Integer> ultimosValores; // numeroPreguntaGlobal -> valor
+    public final Map<Integer, Integer> ultimosValores;
 
     public EstadoSeccionDto(String clave, String nombre, boolean disponible,
                             String proximaDisponible, Map<Integer, Integer> ultimosValores) {

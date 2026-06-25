@@ -34,12 +34,10 @@ public class InicioController {
         int[] respuestasEnMemoria = respuestasProveedor.get();
 
         if (respuestasEnMemoria != null) {
-            // El usuario ya contestó en esta sesión, no hace falta ir al backend
             cargarConRespuestas(respuestasEnMemoria);
             return;
         }
 
-        // No hay nada en memoria (reinicio, cambio de tema): preguntar al backend
         vista.mostrarCargando();
         new Thread(() -> {
             try {

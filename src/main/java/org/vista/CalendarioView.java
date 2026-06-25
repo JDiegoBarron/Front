@@ -222,7 +222,7 @@ public class CalendarioView extends JPanel {
         lblMesAnio.setText(nombreMes + " " + mesActual.getYear());
 
         LocalDate primerDia = mesActual.atDay(1);
-        int offsetInicio = primerDia.getDayOfWeek().getValue() - 1; // 0=Lun … 6=Dom
+        int offsetInicio = primerDia.getDayOfWeek().getValue() - 1; // 0=Lun ... 6=Dom
 
         int diasEnMes  = mesActual.lengthOfMonth();
         LocalDate hoy  = LocalDate.now();

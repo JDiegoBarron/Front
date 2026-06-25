@@ -198,11 +198,6 @@ public class CuestionarioView extends JPanel {
         return row;
     }
 
-    /**
-     * NUEVO: aplica el estado recibido del backend.
-     * - Deshabilita sliders de áreas no disponibles y los precarga con su último valor.
-     * - Muestra el mensaje de "Disponible en X días" debajo del header del área.
-     */
     public void aplicarEstadoSecciones(Map<String, EstadoSeccionDto> estadoPorClave) {
         for (int a = 0; a < CLAVES_AREAS.length; a++) {
             EstadoSeccionDto estado = estadoPorClave.get(CLAVES_AREAS[a]);
@@ -223,7 +218,7 @@ public class CuestionarioView extends JPanel {
                 slider.setEnabled(disponible);
 
                 if (!disponible) {
-                    Integer ultimoValor = estado.ultimosValores.get(idxGlobal + 1); // numeroPreguntaGlobal es 1-based
+                    Integer ultimoValor = estado.ultimosValores.get(idxGlobal + 1);
                     if (ultimoValor != null) slider.setValue(ultimoValor);
                 }
             }
@@ -232,7 +227,6 @@ public class CuestionarioView extends JPanel {
 
     private String formatearFecha(String iso) {
         if (iso == null) return "pronto";
-        // El backend manda ISO; aquí se puede formatear más bonito si se desea (ej. con DateTimeFormatter)
         return iso.substring(0, 10);
     }
 
@@ -247,10 +241,6 @@ public class CuestionarioView extends JPanel {
         return r;
     }
 
-    /**
-     * NUEVO: solo las preguntas de áreas habilitadas, agrupadas por clave de sección.
-     * Cada valor del map es una lista de pares [numeroPreguntaGlobal, valor].
-     */
     public Map<String, java.util.List<int[]>> getRespuestasPorSeccionHabilitada() {
         Map<String, java.util.List<int[]>> resultado = new java.util.LinkedHashMap<>();
         for (int idxGlobal = 0; idxGlobal < 21; idxGlobal++) {
