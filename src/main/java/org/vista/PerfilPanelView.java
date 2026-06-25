@@ -3,6 +3,7 @@ package org.vista;
 import org.modelo.CosmeticoModel;
 import org.modelo.TemaApp;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -11,7 +12,12 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -38,9 +44,13 @@ public class PerfilPanelView extends JPanel {
     private IntConsumer            onActivarCosmético;   // id del cosmético
     private Runnable               onRefreshPerfil;
 
+    private final Map<Integer, Image> cachePreviewMarcos = new HashMap<>();
+
     public PerfilPanelView() {
         setLayout(new BorderLayout());
         setBackground(BienvenidaView.CONTENT_BG);
+
+        debugMarcos();
 
         add(buildTopHeader(), BorderLayout.NORTH);
         add(buildTabs(),      BorderLayout.CENTER);
@@ -48,16 +58,25 @@ public class PerfilPanelView extends JPanel {
 
     private JPanel buildTopHeader() {
         TemaApp.Tema tema = TemaApp.getTema();
-
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(Color.WHITE);
         header.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 222, 235)),
                 new EmptyBorder(20, 28, 20, 28)));
 
+        // ── Avatar con wrapper de tamaño fijo ─────────────────────────────────
         avatarPanel = new AvatarPanel(52);
-        avatarPanel.setPreferredSize(new Dimension(64, 64));
+        int tam = 52 * 2 + 16; // = 120, mismo cálculo que el constructor de AvatarPanel
 
+        JPanel avatarWrapper = new JPanel(null);
+        avatarWrapper.setOpaque(false);
+        avatarWrapper.setPreferredSize(new Dimension(tam, tam));
+        avatarWrapper.setMinimumSize(new Dimension(tam, tam));
+        avatarWrapper.setMaximumSize(new Dimension(tam, tam));
+        avatarPanel.setBounds(0, 0, tam, tam);
+        avatarWrapper.add(avatarPanel);
+
+        // ── Info del usuario ──────────────────────────────────────────────────
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(Color.WHITE);
@@ -75,18 +94,18 @@ public class PerfilPanelView extends JPanel {
         infoPanel.add(Box.createRigidArea(new Dimension(0, 3)));
         infoPanel.add(lblUsername);
 
+        // ── Panel izquierdo ───────────────────────────────────────────────────
         JPanel izquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         izquierdo.setBackground(Color.WHITE);
-        izquierdo.add(avatarPanel);
+        izquierdo.add(avatarWrapper); // ← wrapper en lugar de avatarPanel directo
         izquierdo.add(infoPanel);
         header.add(izquierdo, BorderLayout.WEST);
 
+        // ── Stats ─────────────────────────────────────────────────────────────
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
         statsPanel.setBackground(Color.WHITE);
-
         statsPanel.add(buildStatChip("", "0", "Monedas", e -> lblMonedasHeader = e));
         statsPanel.add(buildStatChip("", "0", "Racha",   e -> lblRachaHeader   = e));
-
         header.add(statsPanel, BorderLayout.EAST);
 
         return header;
@@ -377,23 +396,45 @@ public class PerfilPanelView extends JPanel {
 
     private JPanel buildCosmeticoPreview(CosmeticoModel c) {
         if (c.getTipo() == CosmeticoModel.Tipo.MARCO) {
+            int previewSize = 56; // tamaño del panel de previsualización
             return new JPanel() {
-                { setOpaque(false); setPreferredSize(new Dimension(48, 48)); }
+                {
+                    setOpaque(false);
+                    setPreferredSize(new Dimension(previewSize, previewSize));
+                    setMinimumSize(new Dimension(previewSize, previewSize));
+                    setMaximumSize(new Dimension(previewSize, previewSize));
+                }
                 @Override
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    // Avatar placeholder
-                    g2.setColor(new Color(200, 210, 230));
-                    g2.fillOval(6, 6, 36, 36);
-                    g2.setColor(Color.WHITE.darker());
-                    g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                    g2.drawString("A", 17, 30);
-                    // Marco
-                    int savedMarco = TemaApp.getMarcoIdx();
-                    TemaApp.setMarco(c.getIndiceLocal());
-                    TemaApp.dibujarMarco(g2, 24, 24, 18);
-                    TemaApp.setMarco(savedMarco); // restaurar
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                            RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+                    int cx    = getWidth()  / 2;
+                    int cy    = getHeight() / 2;
+                    int radio = previewSize / 2 - 6; // radio del círculo interior
+
+                    TemaApp.Tema tema = TemaApp.getTema();
+                    g2.setColor(tema.sidebarBg);
+                    g2.fillOval(cx - radio, cy - radio, radio * 2, radio * 2);
+
+                    g2.setColor(Color.WHITE);
+                    g2.setFont(new Font("Segoe UI", Font.BOLD, radio - 2));
+                    FontMetrics fm = g2.getFontMetrics();
+                    String letra = "A";
+                    g2.drawString(letra,
+                            cx - fm.stringWidth(letra) / 2,
+                            cy + (fm.getAscent() - fm.getDescent()) / 2);
+
+                    g2.setClip(null);
+                    Image img = cargarMarcoPreview(c.getIndiceLocal(), previewSize);
+                    if (img != null) {
+                        g2.drawImage(img, cx - previewSize / 2, cy - previewSize / 2,
+                                previewSize, previewSize, this);
+                    }
+
                     g2.dispose();
                 }
             };
@@ -432,6 +473,40 @@ public class PerfilPanelView extends JPanel {
             mini.add(acc);
 
             return mini;
+        }
+    }
+
+    private Image cargarMarcoPreview(int indiceLocal, int tam) {
+        if (indiceLocal == 0) return null; // "Sin marco"
+
+        if (cachePreviewMarcos.containsKey(indiceLocal)) {
+            return cachePreviewMarcos.get(indiceLocal);
+        }
+
+        String[] archivos = TemaApp.ARCHIVOS_MARCOS;
+        if (indiceLocal >= archivos.length || archivos[indiceLocal] == null) return null;
+
+        try (InputStream is = getClass()
+                .getResourceAsStream("/marcos/" + archivos[indiceLocal])) {
+            if (is == null) return null;
+            BufferedImage original = ImageIO.read(is);
+            if (original == null) return null;
+
+            // Escalar también de forma síncrona con Graphics2D
+            BufferedImage scaled = new BufferedImage(tam, tam, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = scaled.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.drawImage(original, 0, 0, tam, tam, null);
+            g2.dispose();
+
+            cachePreviewMarcos.put(indiceLocal, scaled);
+            return scaled;
+        } catch (Exception e) {
+            System.out.println("Error cargando marco " + indiceLocal + ": " + e.getMessage());
+            return null;
         }
     }
 
@@ -560,7 +635,10 @@ public class PerfilPanelView extends JPanel {
         public AvatarPanel(int radio) {
             this.radio = radio;
             setOpaque(false);
-            setPreferredSize(new Dimension(radio * 2 + 12, radio * 2 + 12));
+            int tam = radio * 2 + 16;
+            setPreferredSize(new Dimension(tam, tam));
+            setMinimumSize(new Dimension(tam, tam));
+            setMaximumSize(new Dimension(tam, tam));
         }
 
         public void setIniciales(String nombre) {
@@ -574,18 +652,25 @@ public class PerfilPanelView extends JPanel {
 
         @Override
         protected void paintComponent(Graphics g) {
+            // NO llamar super.paintComponent(g) para evitar que rellene el fondo cuadrado
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
             TemaApp.Tema tema = TemaApp.getTema();
-            int cx = getWidth() / 2;
+            int cx = getWidth()  / 2;
             int cy = getHeight() / 2;
 
-            // Círculo de fondo
-            g2.setColor(tema.sidebarBg);
-            g2.fill(new Ellipse2D.Float(cx - radio, cy - radio, radio * 2, radio * 2));
+            // ── 1. Definir la forma circular ──────────────────────────────────────
+            java.awt.geom.Ellipse2D circulo =
+                    new java.awt.geom.Ellipse2D.Float(cx - radio, cy - radio, radio * 2, radio * 2);
 
-            // Iniciales
+            // ── 2. Fondo circular con color del tema ──────────────────────────────
+            g2.setColor(tema.sidebarBg);
+            g2.fill(circulo);
+
+            // ── 3. Clip circular → las iniciales no salen del círculo ─────────────
+            g2.setClip(circulo);
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Segoe UI", Font.BOLD, (int)(radio * 0.65)));
             FontMetrics fm = g2.getFontMetrics();
@@ -593,8 +678,13 @@ public class PerfilPanelView extends JPanel {
             int textH = fm.getAscent() - fm.getDescent();
             g2.drawString(iniciales, cx - textW / 2, cy + textH / 2);
 
-            // Marco
-            TemaApp.dibujarMarco(g2, cx, cy, radio);
+            // ── 4. Quitar clip y pintar el marco PNG encima ───────────────────────
+            g2.setClip(null);
+            int tam = Math.min(getWidth(), getHeight());
+            Image marco = TemaApp.getImagenMarco(tam);
+            if (marco != null) {
+                g2.drawImage(marco, cx - tam / 2, cy - tam / 2, tam, tam, this);
+            }
 
             g2.dispose();
         }
@@ -637,6 +727,40 @@ public class PerfilPanelView extends JPanel {
                 y += height + vgap + insets.bottom;
                 return new Dimension(targetWidth, y);
             }
+        }
+    }
+
+    private void debugMarcos() {
+        String archivo = "marcos/arbol.png"; // probar con el primero
+
+        // Intento 1: ruta absoluta con /
+        InputStream is1 = getClass().getResourceAsStream("/" + archivo);
+        System.out.println("Intento 1 (/" + archivo + "): " + (is1 != null ? "OK" : "NULL"));
+
+        // Intento 2: ruta relativa sin /
+        InputStream is2 = getClass().getResourceAsStream(archivo);
+        System.out.println("Intento 2 (" + archivo + "): " + (is2 != null ? "OK" : "NULL"));
+
+        // Intento 3: ClassLoader con ruta absoluta
+        InputStream is3 = getClass().getClassLoader().getResourceAsStream(archivo);
+        System.out.println("Intento 3 (ClassLoader, " + archivo + "): " + (is3 != null ? "OK" : "NULL"));
+
+        // Intento 4: ClassLoader con /
+        InputStream is4 = getClass().getClassLoader().getResourceAsStream("/" + archivo);
+        System.out.println("Intento 4 (ClassLoader, /" + archivo + "): " + (is4 != null ? "OK" : "NULL"));
+
+        // Intento 5: listar lo que SÍ ve el ClassLoader en la raíz
+        try {
+            URL raiz = getClass().getClassLoader().getResource("");
+            System.out.println("Raíz del ClassLoader: " + raiz);
+
+            URL carpetaMarcos = getClass().getClassLoader().getResource("marcos");
+            System.out.println("Carpeta marcos: " + carpetaMarcos);
+
+            URL carpetaMarcosBarra = getClass().getClassLoader().getResource("marcos/");
+            System.out.println("Carpeta marcos/: " + carpetaMarcosBarra);
+        } catch (Exception e) {
+            System.out.println("Error listando raíz: " + e.getMessage());
         }
     }
 

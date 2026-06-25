@@ -1,6 +1,7 @@
 package org.controlador;
 
 import org.modelo.ApiService;
+import org.modelo.TemaApp;
 import org.modelo.UsuarioModel;
 import org.vista.LoginView;
 import org.vista.BienvenidaView;
@@ -43,6 +44,8 @@ public class LoginController {
 
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     vista.dispose();
+                    TemaApp.cargar();
+                    BienvenidaView.aplicarTema();
                     BienvenidaView bienvenida = new BienvenidaView(usuarioModel.getNombreCompleto());
                     new BienvenidaController(bienvenida, usuarioModel); // ya lleva el id
                 });

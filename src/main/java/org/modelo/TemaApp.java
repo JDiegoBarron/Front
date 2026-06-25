@@ -1,6 +1,9 @@
 package org.modelo;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,14 +71,25 @@ public class TemaApp {
             new Color(67,20,7),    5),
     };
 
-    public static final String[] NOMBRES_MARCOS = {
-        "Sin marco",        // id marco 0
-        "Dorado Clásico",   // id marco 1
-        "Neón Azul",        // id marco 2
-        "Rosa Degradado",   // id marco 3
-        "Arcoíris",         // id marco 4
-        "Plateado Élite",   // id marco 5
+    public static final String[] ARCHIVOS_MARCOS = {
+            null,           // 0 - sin marco
+            "arbol.png",  // 1
+            "audifonos.png",  // 2
+            "flor.png",  // 3
+            "galactico.png",  // 4
+            "ouroboros.png",  // 5
     };
+
+    public static final String[] NOMBRES_MARCOS = {
+            "Sin marco",
+            "Marco 1",
+            "Marco 2",
+            "Marco 3",
+            "Marco 4",
+            "Marco 5",
+    };
+
+    private static final Image[] cacheMarcos = new Image[ARCHIVOS_MARCOS.length];
 
     private static int   temaIdx  = 0;
     private static int   marcoIdx = 0;
@@ -128,56 +142,34 @@ public class TemaApp {
     public static void removeListener(Runnable l) { listeners.remove(l); }
     private static void notificar()               { listeners.forEach(Runnable::run); }
 
-    /**
-     * @param g2     Graphics2D del componente
-     * @param cx     Centro X
-     * @param cy     Centro Y
-     * @param radio  Radio del avatar
-     */
-    public static void dibujarMarco(Graphics2D g2, int cx, int cy, int radio) {
-        int marcoGrosor = 4;
-        int r = radio + marcoGrosor;
+    public static Image getImagenMarco(int diametro) {
+        if (marcoIdx == 0) return null;
 
-        g2.setStroke(new BasicStroke(marcoGrosor, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        if (cacheMarcos[marcoIdx] != null) {
+            return cacheMarcos[marcoIdx];
+        }
 
-        switch (marcoIdx) {
-            case 0 -> { /* sin marco */ }
-            case 1 -> { // Dorado Clásico
-                g2.setColor(new Color(212, 175, 55));
-                g2.drawOval(cx - r, cy - r, r * 2, r * 2);
-            }
-            case 2 -> { // Neón Azul
-                g2.setColor(new Color(0, 200, 255));
-                g2.setStroke(new BasicStroke(marcoGrosor + 1));
-                g2.drawOval(cx - r, cy - r, r * 2, r * 2);
-            }
-            case 3 -> { // Rosa Degradado (aproximado con 2 arcos)
-                g2.setColor(new Color(255, 100, 180));
-                g2.drawOval(cx - r, cy - r, r * 2, r * 2);
-                g2.setColor(new Color(255, 180, 230, 120));
-                g2.setStroke(new BasicStroke(marcoGrosor - 1));
-                g2.drawOval(cx - r - 2, cy - r - 2, (r + 2) * 2, (r + 2) * 2);
-            }
-            case 4 -> { // Arcoíris (6 segmentos)
-                Color[] arco = {
-                    new Color(255,0,0), new Color(255,165,0),
-                    new Color(255,255,0), new Color(0,200,0),
-                    new Color(0,0,255), new Color(148,0,211)
-                };
-                g2.setStroke(new BasicStroke(marcoGrosor + 1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                for (int i = 0; i < 6; i++) {
-                    g2.setColor(arco[i]);
-                    g2.drawArc(cx - r, cy - r, r * 2, r * 2, i * 60, 60);
-                }
-            }
-            case 5 -> { // Plateado Élite (doble borde)
-                g2.setColor(new Color(192, 192, 192));
-                g2.setStroke(new BasicStroke(marcoGrosor + 2));
-                g2.drawOval(cx - r - 2, cy - r - 2, (r + 2) * 2, (r + 2) * 2);
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new BasicStroke(1));
-                g2.drawOval(cx - r + 1, cy - r + 1, (r - 1) * 2, (r - 1) * 2);
-            }
+        try (InputStream is = TemaApp.class
+                .getResourceAsStream("/marcos/" + ARCHIVOS_MARCOS[marcoIdx])) {
+            if (is == null) return null;
+
+            BufferedImage original = ImageIO.read(is);
+            if (original == null) return null;
+
+            BufferedImage scaled = new BufferedImage(diametro, diametro, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = scaled.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.drawImage(original, 0, 0, diametro, diametro, null);
+            g2.dispose();
+
+            cacheMarcos[marcoIdx] = scaled;
+            return scaled;
+
+        } catch (Exception e) {
+            return null;
         }
     }
 }
